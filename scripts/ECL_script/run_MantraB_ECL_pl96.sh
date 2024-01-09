@@ -23,4 +23,4 @@ python -u run_dualmode3k.py \
   --urt_heads 7 \
   --itr 3 \
   --fix_seed 2021 \
-  --checkpoints ./checkpoints0/
+  --checkpoints ./checkpoints/

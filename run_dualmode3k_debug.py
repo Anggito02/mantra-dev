@@ -21,7 +21,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, default=1, help='status')
-    parser.add_argument('--model_id', type=str, default='MantraB_ECL_96_96', help='model id')
+    parser.add_argument('--model_id', type=str, default='ili_MantraB_36_24', help='model id')
     parser.add_argument('--model', type=str, default='Mantra',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, default='MantraB',
@@ -29,26 +29,26 @@ def main():
 
     # data loader
     parser.add_argument('--data', type=str, default='custom', help='dataset type')
-    parser.add_argument('--root_path', type=str, default='./dataset/electricity/', help='root path of the data file')
-    parser.add_argument('--data_path', type=str, default='electricity.csv', help='data file')
+    parser.add_argument('--root_path', type=str, default='./dataset/illness/', help='root path of the data file')
+    parser.add_argument('--data_path', type=str, default='national_illness.csv', help='data file')
     parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
-    parser.add_argument('--checkpoints', type=str, default='./checkpoints0/', help='location of model checkpoints')
+    parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # forecasting task
-    parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
-    parser.add_argument('--label_len', type=int, default=48, help='start token length')
-    parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--seq_len', type=int, default=36, help='input sequence length')
+    parser.add_argument('--label_len', type=int, default=18, help='start token length')
+    parser.add_argument('--pred_len', type=int, default=24, help='prediction sequence length')
 
     # model define
     parser.add_argument('--bucket_size', type=int, default=4, help='for Reformer')
     parser.add_argument('--n_hashes', type=int, default=4, help='for Reformer')
-    parser.add_argument('--enc_in', type=int, default=321, help='encoder input size')
-    parser.add_argument('--dec_in', type=int, default=321, help='decoder input size')
-    parser.add_argument('--c_out', type=int, default=321, help='output size')
+    parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
+    parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
+    parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_learner', type=int, default=10, help='number of learner')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')

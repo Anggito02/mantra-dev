@@ -1,4 +1,4 @@
-python -u run_dualmodb.py \
+python -u run_dualmode3k.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
@@ -20,5 +20,5 @@ python -u run_dualmodb.py \
   --n_learner 10 \
   --urt_heads 7 \
   --itr 3 \
-  --fix_seed 2021,2022,2023 \
-  --checkpoints ./checkpoints0/
+  --fix_seed 2021 \
+  --checkpoints ./checkpoints/
