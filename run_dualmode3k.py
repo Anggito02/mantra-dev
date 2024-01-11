@@ -126,61 +126,61 @@ def main():
 
 
     if args.is_training:
-        for ii in range(args.itr):
+        # for ii in range(args.itr):
             
-            # fix_seed=args.fix_seed.split(",")
-            # fix_seed=[int(i) for i in fix_seed]
-            # random.seed(fix_seed[ii])
-            # torch.manual_seed(fix_seed[ii])
-            # np.random.seed(fix_seed[ii])
-            # torch.cuda.manual_seed(fix_seed[ii])
-            # torch.backends.cudnn.deterministic = True
-            # os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
+        #     # fix_seed=args.fix_seed.split(",")
+        #     # fix_seed=[int(i) for i in fix_seed]
+        #     # random.seed(fix_seed[ii])
+        #     # torch.manual_seed(fix_seed[ii])
+        #     # np.random.seed(fix_seed[ii])
+        #     # torch.cuda.manual_seed(fix_seed[ii])
+        #     # torch.backends.cudnn.deterministic = True
+        #     # os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
 
-            # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.n_heads,
-                args.e_layers,
-                args.d_layers,
-                args.d_ff,
-                args.factor,
-                args.embed,
-                args.distil,
-                args.des, ii)
+        #     # setting record of experiments
+        #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+        #         args.model_id,
+        #         args.model,
+        #         args.data,
+        #         args.features,
+        #         args.seq_len,
+        #         args.label_len,
+        #         args.pred_len,
+        #         args.d_model,
+        #         args.n_heads,
+        #         args.e_layers,
+        #         args.d_layers,
+        #         args.d_ff,
+        #         args.factor,
+        #         args.embed,
+        #         args.distil,
+        #         args.des, ii)
 
-            exp = Exp(args)  # set experiments
-            # opt = OptURT(args)  # set experiments
+        #     exp = Exp(args)  # set experiments
+        #     # opt = OptURT(args)  # set experiments
 
-            print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+        #     print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+        #     exp.train(setting)
 
-            # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # opt.train_urt(setting)
+        #     # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+        #     # opt.train_urt(setting)
 
-            print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.test(setting)
+        #     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+        #     exp.test(setting)
 
-            # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # opt.test2(setting)
-
-
-            if args.do_predict:
-                print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-                exp.predict(setting, True)
+        #     # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+        #     # opt.test2(setting)
 
 
-            del exp
-            gc.collect()
+        #     if args.do_predict:
+        #         print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+        #         exp.predict(setting, True)
+
+
+        #     del exp
+        #     gc.collect()
             
-            torch.cuda.empty_cache()
+        #     torch.cuda.empty_cache()
 
 
         OptURT = Opt_URT

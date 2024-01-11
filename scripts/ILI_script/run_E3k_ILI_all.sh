@@ -25,7 +25,7 @@ python -u run_dualmode3k.py \
   --fix_seed 2023 \
   --train_epochs 20 \
   --batch_size 32 \
-  --checkpoints ./checkpoints1/
+  --checkpoints ./checkpoints/
 
 
 python -u run_dualmode3k.py \

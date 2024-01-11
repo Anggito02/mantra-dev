@@ -17,14 +17,14 @@ def main():
     # torch.backends.cudnn.deterministic = True
     # os.environ['PYTHONHASHSEED'] = str(fix_seed)
     
-    parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
+    parser = argparse.ArgumentParser(description='Transformer family for Time Series Forecasting')
 
     # basic config
     parser.add_argument('--is_training', type=int, default=1, help='status')
-    parser.add_argument('--model_id', type=str, default='ili_MantraB_36_24', help='model id')
-    parser.add_argument('--model', type=str, default='Mantra',
+    parser.add_argument('--model_id', type=str, default='ili_E3k_36_24', help='model id')
+    parser.add_argument('--model', type=str, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
-    parser.add_argument('--slow_model', type=str, default='MantraB',
+    parser.add_argument('--slow_model', type=str, default='S1iSlow',
                         help='slow model name, options: [Autoformer, Informer, Transformer, etc]')
 
     # data loader
@@ -50,9 +50,9 @@ def main():
     parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
     parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
-    parser.add_argument('--n_learner', type=int, default=10, help='number of learner')
+    parser.add_argument('--n_learner', type=int, default=3, help='number of learner')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
-    parser.add_argument('--urt_heads', type=int, default=7, help='num of heads')
+    parser.add_argument('--urt_heads', type=int, default=1, help='num of heads')
     parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
@@ -61,7 +61,7 @@ def main():
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
+    parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')

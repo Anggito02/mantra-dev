@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer 
+from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, iTransformer, B6iFast, S1iSlow 
 from models import Uautoformer, UautoformerC1, UautoformerC2, Uautoformer2, Transformer, Reformer, Mantra, MantraV1, MantraA, MantraB, MantraD, MantraE
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
@@ -50,6 +50,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             'Transformer': Transformer,
             'Informer': Informer,
             'Reformer': Reformer,
+            'iTransformer' : iTransformer,
+            'B6iFast' : B6iFast,
+            'S1iSlow' : S1iSlow,
         }
         model = model_dict[self.args.model].Model(self.args).float()
         self.slow_model = model_dict[self.args.slow_model].Model(self.args).float().cuda()

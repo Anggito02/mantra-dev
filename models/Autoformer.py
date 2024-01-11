@@ -113,9 +113,9 @@ class Model(nn.Module):
         trend_init = torch.cat([trend_init[:, -self.label_len:, :], mean], dim=1)
         seasonal_init = torch.cat([seasonal_init[:, -self.label_len:, :], zeros], dim=1)
         # enc
-        # enc_out = self.enc_embedding(x_enc, x_mark_enc)
+        enc_out = self.enc_embedding(x_enc, x_mark_enc)
 
-        # enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
+        enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
         #print(enc_self_mask.is_cuda)
         # print(next(self.encoder.parameters()).is_cuda)
         # dec
