@@ -57,8 +57,6 @@ python -u run_dualmode3k.py \
   --batch_size 32 \
   --checkpoints ./checkpoints1/
 
-
-
 python -u run_dualmode3k.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \

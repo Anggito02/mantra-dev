@@ -1,8 +1,8 @@
-python -u run_dualmode3k.py \
+python -u run_dualmode3k_nourt2.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_24 \
+  --model_id ili_E3k_NoURT2_36_24 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -22,17 +22,18 @@ python -u run_dualmode3k.py \
   --learning_rate 0.001 \
   --dropout 0.1 \
   --d_model 256 \
-  --itr 3 \
+  --itr 1 \
   --fix_seed 2023 \
   --train_epochs 20 \
   --batch_size 32 \
   --checkpoints ./checkpoints1/
 
-python -u run_dualmode3k.py \
+
+python -u run_dualmode3k_nourt2.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_36 \
+  --model_id ili_E3k_NoURT2_36_36 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -50,20 +51,23 @@ python -u run_dualmode3k.py \
   --n_learner 3 \
   --urt_heads 1 \
   --learning_rate 0.001 \
+  --dropout 0.1 \
   --d_model 256 \
-  --itr 3 \
+  --itr 1 \
   --fix_seed 2023 \
   --train_epochs 20 \
   --batch_size 32 \
   --checkpoints ./checkpoints1/
 
-python -u run_dualmode3k.py \
+
+
+python -u run_dualmode3k_nourt2.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_48 \
+  --model_id ili_E3k_NoURT2_36_48 \
   --model B6iFast \
-  --slow_model S1Slow \
+  --slow_model S1iSlow \
   --data custom \
   --features M \
   --seq_len 36 \
@@ -79,21 +83,22 @@ python -u run_dualmode3k.py \
   --n_learner 3 \
   --urt_heads 1 \
   --learning_rate 0.001 \
+  --dropout 0.1 \
   --d_model 256 \
-  --itr 3 \
+  --itr 1 \
   --fix_seed 2023 \
   --train_epochs 20 \
   --batch_size 32 \
   --checkpoints ./checkpoints2/
 
 
-python -u run_dualmode3k.py \
+python -u run_dualmode3k_nourt2.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_60 \
+  --model_id ili_E3k_NoURT2_36_60 \
   --model B6iFast \
-  --slow_model S1Slow \
+  --slow_model S1iSlow \
   --data custom \
   --features M \
   --seq_len 36 \
@@ -109,8 +114,9 @@ python -u run_dualmode3k.py \
   --n_learner 3 \
   --urt_heads 1 \
   --learning_rate 0.001 \
+  --dropout 0.1 \
   --d_model 256 \
-  --itr 3 \
+  --itr 1 \
   --fix_seed 2023 \
   --train_epochs 20 \
   --batch_size 32 \

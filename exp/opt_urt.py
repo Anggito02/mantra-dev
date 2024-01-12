@@ -478,11 +478,11 @@ class Opt_URT(Exp_Basic):
         np.save(folder_path + 'true.npy', trues)
 
 
-        fname = "ZZZ_Mantra_ETTm2_pl"+str(self.args.pred_len)+".h5"
-        hf = h5py.File(fname, 'w')
-        hf.create_dataset('preds', data=preds)
-        hf.create_dataset('trues', data=trues)
-        hf.close()
+        # fname = "ZZZ_Mantra_ETTm2_pl"+str(self.args.pred_len)+".h5"
+        # hf = h5py.File(fname, 'w')
+        # hf.create_dataset('preds', data=preds)
+        # hf.create_dataset('trues', data=trues)
+        # hf.close()
 
         #     np.savetxt(fname, trues[:,:,col],delimiter=",")
 
