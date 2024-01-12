@@ -3,7 +3,7 @@ from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, iTransformer, B6iFast, S1iSlow 
 from models import Uautoformer, UautoformerC1, UautoformerC2, Uautoformer2, Transformer, Reformer, Mantra, MantraV1, MantraA, MantraB, MantraD, MantraE
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
-from utils.metrics import metric
+from utils.metrics import metric, NegativeCorr
 from utils.slowloss import SlowLearnerLoss, ssl_loss, ssl_loss_v2
 
 import numpy as np
@@ -55,7 +55,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             'S1iSlow' : S1iSlow,
         }
         model = model_dict[self.args.model].Model(self.args).float()
-        self.slow_model = model_dict[self.args.slow_model].Model(self.args).float().cuda()
+        self.slow_model = model_dict[self.args.slow_model].Model(self.args).float().to(self.device)
         # self.slow_model = model_dict['Autoformer'].Model(self.args).float().cuda()
 
         if self.args.use_multi_gpu and self.args.use_gpu:
@@ -76,7 +76,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         return slow_model_optim
 
     def _select_criterion(self):
-        criterion = nn.MSELoss()
+        criterion = NegativeCorr(self.args.corr_penalty) if self.args.loss == "neg_corr" else nn.MSELoss()
         return criterion
 
     # def _acquire_device(self):
