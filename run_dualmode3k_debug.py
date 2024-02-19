@@ -1,8 +1,10 @@
 import argparse
 import os
 import torch
-from exp.exp_main_dualmode3k import Exp_Main_DualmodE3K
+from exp.exp_main_3k_updated import Exp_Main_DualmodE3K
 from exp.opt_urt import Opt_URT
+
+# from exp.exp_rl import OPT_RL_Mantra
 import random
 import numpy as np
 
@@ -17,19 +19,19 @@ def main():
     # torch.backends.cudnn.deterministic = True
     # os.environ['PYTHONHASHSEED'] = str(fix_seed)
     
-    parser = argparse.ArgumentParser(description='Transformer family for Time Series Forecasting')
+    parser = argparse.ArgumentParser(description='iTransformer for Time Series Forecasting')
 
     # basic config
-    parser.add_argument('--is_training', type=int, default=1, help='status')
-    parser.add_argument('--model_id', type=str, default='ili_E3k_36_24', help='model id')
-    parser.add_argument('--model', type=str, default='B6iFast',
+    parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
+    parser.add_argument('--model_id', type=str, required=False, default='test_RL', help='model id')
+    parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
-    parser.add_argument('--slow_model', type=str, default='S1iSlow',
+    parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
                         help='slow model name, options: [Autoformer, Informer, Transformer, etc]')
 
     # data loader
-    parser.add_argument('--data', type=str, default='custom', help='dataset type')
-    parser.add_argument('--root_path', type=str, default='./dataset/illness/', help='root path of the data file')
+    parser.add_argument('--data', type=str, required=False, default='custom', help='dataset type')
+    parser.add_argument('--root_path', type=str, default='./dataset/illness', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='national_illness.csv', help='data file')
     parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
@@ -57,27 +59,28 @@ def main():
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
     parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
-    parser.add_argument('--factor', type=int, default=3, help='attn factor')
+    parser.add_argument('--factor', type=int, default=1, help='attn factor')
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
+    parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
-    parser.add_argument('--output_attention', action='store_true', help='whether to output attention in encoder', default=False)
-    parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data', default=True)
+    parser.add_argument('--output_attention', action='store_true', help='whether to output attention in encoder')
+    parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
-    parser.add_argument('--itr', type=int, default=3, help='experiments times')
-    parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
+    parser.add_argument('--itr', type=int, default=2, help='experiments times')
+    parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate')
     parser.add_argument('--anomaly', type=float, default=10.0, help='anomaly limit')
     parser.add_argument('--des', type=str, default='test', help='exp description')
-    parser.add_argument('--loss', type=str, default='mse', help='loss function')
+    parser.add_argument('--loss', type=str, default='neg_corr', help='loss function')
+    parser.add_argument('--corr_penalty', type=float, default=0.5, help='correlation penalty for negative correlation loss function')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
@@ -88,6 +91,19 @@ def main():
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
     parser.add_argument('--fix_seed', type=str, default='2021', help='Fix seed for iterations')
 
+    # RL
+    parser.add_argument('--rl_seed', default=42, type=int)
+    parser.add_argument('--use_weight',   action='store_true', default=False)
+    parser.add_argument('--use_td',       action='store_false', default=True)
+    parser.add_argument('--use_extra',    action='store_false', default=True)
+    parser.add_argument('--use_pretrain', action='store_false', default=True)
+    parser.add_argument('--epsilon', default=0.5, type=float)
+    parser.add_argument('--exp_name', default='rlmc', type=str)
+    parser.add_argument('--feat_len', default=20, type=int)
+    parser.add_argument('--lrRL', default=1e-4, type=float, help='learning rate for reinforcement learning')
+    parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
+    parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
+
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 
 
@@ -95,7 +111,6 @@ def main():
 
     # fix_seed = 2021
     # fix_seed=args.fix_seed.split(",")
-    # print(fix_seed)
     fix_seed=int(args.fix_seed)
     random.seed(fix_seed)
     torch.manual_seed(fix_seed)
@@ -123,20 +138,18 @@ def main():
     
     # Exp = Exp_Main_Dualmod
     Exp = Exp_Main_DualmodE3K
-    
-
 
     if args.is_training:
         for ii in range(args.itr):
             
-            # fix_seed=args.fix_seed.split(",")
-            # fix_seed=[int(i) for i in fix_seed]
-            # random.seed(fix_seed[ii])
-            # torch.manual_seed(fix_seed[ii])
-            # np.random.seed(fix_seed[ii])
-            # torch.cuda.manual_seed(fix_seed[ii])
-            # torch.backends.cudnn.deterministic = True
-            # os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
+            fix_seed=args.fix_seed.split(",")
+            fix_seed=[int(i) for i in fix_seed]
+            random.seed(fix_seed[ii])
+            torch.manual_seed(fix_seed[ii])
+            np.random.seed(fix_seed[ii])
+            torch.cuda.manual_seed(fix_seed[ii])
+            torch.backends.cudnn.deterministic = True
+            os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
 
             # setting record of experiments
             setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
@@ -166,8 +179,9 @@ def main():
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)
 
-            print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.test(setting)
+            # Not using test before URT Layers
+            # print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            # exp.test(setting)
 
             # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             # opt.test2(setting)
@@ -184,37 +198,37 @@ def main():
             torch.cuda.empty_cache()
 
 
-        OptURT = Opt_URT
-        for ii in range(args.itr):
+        # OptRL = OPT_RL_Mantra(args)
+        # for ii in range(args.itr):
             
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.n_heads,
-                args.e_layers,
-                args.d_layers,
-                args.d_ff,
-                args.factor,
-                args.embed,
-                args.distil,
-                args.des, ii)
+        #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+        #         args.model_id,
+        #         args.model,
+        #         args.data,
+        #         args.features,
+        #         args.seq_len,
+        #         args.label_len,
+        #         args.pred_len,
+        #         args.d_model,
+        #         args.n_heads,
+        #         args.e_layers,
+        #         args.d_layers,
+        #         args.d_ff,
+        #         args.factor,
+        #         args.embed,
+        #         args.distil,
+        #         args.des, ii)
 
-            # exp = Exp(args)  # set experiments
-            opt = OptURT(args)  # set experiments
+        #     # exp = Exp(args)  # set experiments
+        #     # opt = OptURT(args)  # set experiments
 
-            print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            opt.train_urt(setting)
+        #     # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+        #     # opt.train_urt(setting)
 
-            print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            opt.test2(setting)
+        #     # print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+        #     # opt.test2(setting)
 
-            torch.cuda.empty_cache()
+        #     torch.cuda.empty_cache()
     else:
         ii = 0
         setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,

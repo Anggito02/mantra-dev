@@ -26,7 +26,11 @@ class Model(nn.Module):
                 EncoderLayer(
                     AttentionLayer(
                         FullAttention(False, configs.factor, attention_dropout=configs.dropout,
-                                      output_attention=configs.output_attention), configs.d_model, configs.n_heads), configs.d_model, configs.d_ff, dropout=configs.dropout,activation=configs.activation
+                                      output_attention=configs.output_attention
+                                      ),
+                        configs.d_model, configs.n_heads
+                        ),
+                    configs.d_model, configs.d_ff, dropout=configs.dropout,activation=configs.activation
                 ) for l in range(configs.e_layers)
             ],
             norm_layer=torch.nn.LayerNorm(configs.d_model)
@@ -59,7 +63,7 @@ class Model(nn.Module):
         # Embedding
         # B L N -> B N E                (B L N -> B L E in the vanilla Transformer)
         enc_out = self.enc_embedding(x_enc, x_mark_enc) # covariates (e.g timestamp) can be also embedded as tokens
-        # print(enc_out.shape)
+        print(enc_out.shape)
         
         # B N E -> B N E                (B L E -> B L E in the vanilla Transformer)
         # the dimensions of embedded time series has been inverted, and then processed by native attn, layernorm and ffn modules
