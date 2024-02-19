@@ -93,10 +93,14 @@ class Exp_Main_DualmodE3K(Exp_Basic):
     #     return device
 
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def vali(self, vali_data, vali_loader, criterion, setting, flag):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
+
+            # bm train preds npz
+            bm_train_preds = [[] for _ in range(self.args.n_learner)]
+
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
@@ -111,14 +115,43 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+
+                            # Outputs for every models
+                            for models_idx in range(self.args.n_learner):
+                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
+
+                                # Save bm_train_preds
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                            # Outputs for every models
+                            for models_idx in range(self.args.n_learner):
+                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+
+                                # Save bm_train_preds
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+
+                        # Outputs for every models
+                        for models_idx in range(self.args.n_learner):
+                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
+
+                            # Save bm_train_preds
+                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                     else:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                        # Outputs for every models
+                        for models_idx in range(self.args.n_learner):
+                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+
+                            # Save bm_train_preds
+                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -129,6 +162,16 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 loss = criterion(pred, true)
 
                 total_loss.append(loss)
+
+            # Update numpy bm_train_preds
+            bm_train_preds_npz = {}
+            for models_idx in range(self.args.n_learner):
+                bm_train_preds_npz['Learner' + str(models_idx)] = np.concatenate(bm_train_preds[models_idx], axis=0)
+
+            os.makedirs(os.path.join(self.args.checkpoints, setting, 'rl_bm'), exist_ok=True)
+            bm_train_preds_npz_path = os.path.join("{self.args.checkpoints}, {setting}, 'rl_bm', 'bm_{flag}_preds.npz'")
+            np.savez(bm_train_preds_npz_path, **bm_train_preds_npz)
+
         total_loss = np.average(total_loss)
         self.model.train()
         return total_loss
@@ -156,6 +199,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
 
+        # bm train preds npz
+        bm_train_preds = [[] for _ in range(self.args.n_learner)]
+
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             train_loss = []
@@ -166,6 +212,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             # self.model.check_params()
             print(train_loader)
             print(self.args.n_learner)
+            
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
@@ -178,9 +225,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-
-                # bm train preds npz
-                bm_train_preds = [[] for _ in range(self.args.n_learner)]
 
                 # encoder - decoder
                 if self.args.use_amp:
@@ -195,7 +239,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs.detach().cpu().numpy())
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                         else:
                             # print("enter else")
                             # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -205,7 +249,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs.detach().cpu().numpy())
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
                         f_dim = -1 if self.args.features == 'MS' else 0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -223,7 +267,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
 
                             # Save bm_train_preds
-                            bm_train_preds[models_idx].append(outputs.detach().cpu().numpy())
+                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                     else:
                         # print("enter else")
                         # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -233,23 +277,13 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs.detach().cpu().numpy())
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     loss = criterion(outputs, batch_y)
                     train_loss.append(loss.item())
-
-                # Update numpy bm_train_preds
-                bm_train_preds_npz = {}
-                for models_idx in range(self.args.n_learner):
-                    bm_train_preds_npz['Learner' + str(models_idx)] = np.concatenate(bm_train_preds[models_idx], axis=0)
-
-                if (np.load(os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')) is not None):
-                    bm_train_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')
-
-                np.savez(bm_train_preds_npz_path, **bm_train_preds_npz)
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -429,12 +463,13 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
+            vali_loss = self.vali(vali_data, vali_loader, criterion, setting, "vali")
+            test_loss = self.vali(test_data, test_loader, criterion, setting, "test")
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             early_stopping(vali_loss, self.model, path)
+            
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
@@ -443,6 +478,15 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
+
+        # Update numpy bm_train_preds
+        bm_train_preds_npz = {}
+        for models_idx in range(self.args.n_learner):
+            bm_train_preds_npz['Learner' + str(models_idx)] = np.concatenate(bm_train_preds[models_idx], axis=0)
+
+        os.makedirs(os.path.join(self.args.checkpoints, setting, 'rl_bm'), exist_ok=True)
+        bm_train_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')
+        np.savez(bm_train_preds_npz_path, **bm_train_preds_npz)
 
         return self.model
 
