@@ -2,9 +2,9 @@ import argparse
 import os
 import torch
 from exp.exp_main_3k_updated import Exp_Main_DualmodE3K
-from exp.opt_urt import Opt_URT
+# from exp.opt_urt import Opt_URT
 
-# from exp.exp_rl import OPT_RL_Mantra
+from exp.exp_rl import OPT_RL_Mantra
 import random
 import numpy as np
 
@@ -72,7 +72,7 @@ def main():
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
-    parser.add_argument('--itr', type=int, default=2, help='experiments times')
+    parser.add_argument('--itr', type=int, default=3, help='experiments times')
     parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
@@ -89,7 +89,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
-    parser.add_argument('--fix_seed', type=str, default='2021', help='Fix seed for iterations')
+    parser.add_argument('--fix_seed', type=str, default='2021,2022,2023', help='Fix seed for iterations')
 
     # RL
     parser.add_argument('--rl_seed', default=42, type=int)
@@ -111,7 +111,7 @@ def main():
 
     # fix_seed = 2021
     # fix_seed=args.fix_seed.split(",")
-    fix_seed=int(args.fix_seed)
+    fix_seed=int(args.fix_seed.split(",")[0])
     random.seed(fix_seed)
     torch.manual_seed(fix_seed)
     np.random.seed(fix_seed)
@@ -174,7 +174,7 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+            # exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)
@@ -186,13 +186,17 @@ def main():
             # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             # opt.test2(setting)
 
+            # if args.do_predict:
+            #     print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            #     exp.predict(setting, True)
 
-            if args.do_predict:
-                print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-                exp.predict(setting, True)
-
+            # RL Experiment
+            rl_exp = OPT_RL_Mantra(args, setting)
+            print(">>>>>>>RL_Train: {}>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>".format(setting))
+            rl_exp.forward()
 
             del exp
+            del rl_exp
             gc.collect()
             
             torch.cuda.empty_cache()

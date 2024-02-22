@@ -8,16 +8,21 @@ import time
 from exp.exp_basic import Exp_Basic
 from exp.exp_rl_pretrain import Exp_RL_Pretrain
 from exp.exp_rl_env import Env
-from utils.utils import load_data, get_state_weight, get_batch_reward, sparse_explore, evaluate_agent
+from utils.utils import unify_input_data, load_data, get_state_weight, get_batch_reward, sparse_explore, evaluate_agent
 
 from models.ddpg import Actor, DDPGAgent, ReplayBuffer
 
 class OPT_RL_Mantra(Exp_Basic):
-    def __init__(self, args):
-        super(OPT_RL_Mantra, self).__init__(args)
-        self.BUFFER_PATH = f'/dataset/RLBuffer/batch_buffer.csv'
+    def __init__(self, args, setting):
+        self.args = args
+        self.setting = setting
+        self.device = self._acquire_device()
+        self.RL_DATA_PATH = f'{args.checkpoints}/{setting}/'
+        self.BUFFER_PATH = f'{self.RL_DATA_PATH}/buffer/'
 
     def forward(self):
+        unify_input_data(self.RL_DATA_PATH)
+
         (train_X, valid_X, test_X, train_y, valid_y, test_y, train_error, valid_error, _) = load_data()
 
         # valid_preds = np.load(f'{DATA_DIR}/bm_valid_preds.npy')
@@ -27,7 +32,7 @@ class OPT_RL_Mantra(Exp_Basic):
         valid_X = np.swapaxes(valid_X, 2, 1)
         test_X  = np.swapaxes(test_X,  2, 1)
 
-        L = len(train_X) - 1 if self.use_td else len(train_X)
+        L = len(train_X) - 1 if self.args.use_td else len(train_X)
         
         train_X = train_X[:, :, -self.args.feat_len:]
         valid_X = valid_X[:, :, -self.args.feat_len:]

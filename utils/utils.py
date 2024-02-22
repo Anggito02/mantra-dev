@@ -8,10 +8,6 @@ from collections import Counter
 from sktime.performance_metrics.forecasting import \
     mean_absolute_error, mean_absolute_percentage_error
 
-DATA_DIR = 'dataset'
-SCALE_MEAN, SCALE_STD = np.load(f'{DATA_DIR}/scaler.npy')
-def inv_trans(x): return x * SCALE_STD + SCALE_MEAN
-
 def get_state_weight(train_error):
     L = len(train_error)
     best_model = train_error.argmin(1)
@@ -31,7 +27,7 @@ def compute_mape_error(y, bm_preds):
     mape_loss_df = pd.DataFrame()
     for i in trange(bm_preds.shape[1], desc='[Compute Error]'):
         model_mape_loss = [mean_absolute_percentage_error(
-            inv_trans(y[j]), inv_trans(bm_preds[j, i, :]),
+            y[j], bm_preds[j, i, :],
             symmetric=True) for j in range(len(y))]
         mape_loss_df[i] = model_mape_loss
     return mape_loss_df
@@ -41,7 +37,7 @@ def compute_mae_error(y, bm_preds):
     loss_df = pd.DataFrame()
     for i in trange(bm_preds.shape[1], desc='[Compute Error]'):
         model_mae_loss = [mean_absolute_error(
-            inv_trans(y[j]), inv_trans(bm_preds[j, i, :]),
+            y[j], bm_preds[j, i, :],
             symmetric=True) for j in range(len(y))]
         loss_df[i] = model_mae_loss
     return loss_df
@@ -65,52 +61,52 @@ def sparse_explore(obs, act_dim):
 
     return sparse_action
 
-def unify_input_data():
-    train_val_X   = np.load('dataset/train_val_X.npy')    # (62795, 120, 7)
-    train_val_y   = np.load('dataset/train_val_y.npy')    # (62795, 24)
-    test_X        = np.load('dataset/test_X.npy')         # (6867, 120, 7)
-    test_y        = np.load('dataset/test_y.npy')         # (6867, 24)
-
-    L = len(test_y)
-    train_X = train_val_X[:-L]
-    valid_X = train_val_X[-L:]
-    train_y = train_val_y[:-L]
-    valid_y = train_val_y[-L:]
+def unify_input_data(data_path):
+    train_x = np.load(f'{data_path}/dataset/input_train_x.npy')    
+    train_y = np.load(f'{data_path}/dataset/input_train_y.npy')
+    vali_x  = np.load(f'{data_path}/dataset/input_vali_x.npy')
+    vali_y  = np.load(f'{data_path}/dataset/input_vali_y.npy')
+    test_x  = np.load(f'{data_path}/dataset/input_test_x.npy')
+    test_y  = np.load(f'{data_path}/dataset/input_test_y.npy')
 
     # predictions
-    MODEL_NAMES = ['lstm1', 'lstm2', 'gru1', 'gru2', 'cnn1', 'cnn2',
-                   'transformer1', 'transformer2', 'repeat']
     merge_data = []
-    bm_train_preds = np.load('dataset/bm_train_preds.npz')
-    for model_name in MODEL_NAMES:
-        model_pred = bm_train_preds[model_name]
-        model_pred = np.expand_dims(model_pred, axis=1)
-        merge_data.append(model_pred)
-    merge_data = np.concatenate(merge_data, axis=1)  # (62795, 9, 24)
-    train_preds = merge_data[:-L]
-    valid_preds = merge_data[-L:]
-    np.save('dataset/bm_train_preds.npy', train_preds)
-    np.save('dataset/bm_valid_preds.npy', valid_preds)
+    train_preds_npz = np.load(f'{data_path}/rl_bm/bm_train_preds.npz')
+    for model_name in train_preds_npz.keys():
+        train_preds = train_preds_npz[model_name]
+        train_preds = np.expand_dims(train_preds, axis=1)
+        merge_data.append(train_preds)
+    train_preds_merge_data = np.concatenate(merge_data, axis=1)
+    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', merge_data)
 
-    merge_test_data = []
-    bm_train_preds = np.load('dataset/bm_test_preds.npz')
-    for model_name in MODEL_NAMES:
-        model_pred = bm_train_preds[model_name]
-        model_pred = np.expand_dims(model_pred, axis=1)
-        merge_test_data.append(model_pred)
-    test_preds = np.concatenate(merge_test_data, axis=1)  # (62795, 9, 24)
-    np.save('dataset/bm_test_preds.npy', test_preds)
+    merge_data = []
+    valid_preds_npz = np.load(f'{data_path}/rl_bm/bm_vali_preds.npz')
+    for model_name in valid_preds_npz.keys():
+        valid_preds = valid_preds_npz[model_name]
+        valid_preds = np.expand_dims(valid_preds, axis=1)
+        merge_data.append(valid_preds)
+    valid_preds_merge_data = np.concatenate(merge_data, axis=1)
+    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds)
 
-    train_error_df = compute_mape_error(train_y, train_preds)
-    valid_error_df = compute_mape_error(valid_y, valid_preds)
-    test_error_df  = compute_mape_error(test_y , test_preds)
+    merge_data = []
+    test_preds_npz = np.load(f'{data_path}/rl_bm/bm_test_preds.npz')
+    for model_name in test_preds_npz.keys():
+        test_preds = test_preds_npz[model_name]
+        test_preds = np.expand_dims(test_preds, axis=1)
+        merge_data.append(test_preds)
+    test_preds_merge_data = np.concatenate(merge_data, axis=1)
+    np.save(f'{data_path}/rl_bm/bm_test_preds.npy', test_preds)
 
-    np.savez('dataset/input.npz',
-             train_X=train_X,
-             valid_X=valid_X,
-             test_X=test_X,
+    train_error_df = compute_mape_error(train_y, train_preds_merge_data)
+    valid_error_df = compute_mape_error(vali_y, valid_preds_merge_data)
+    test_error_df  = compute_mape_error(test_y , test_preds_merge_data)
+
+    np.savez(f'{data_path}/dataset/input_rl.npz',
+             train_X=train_x,
+             valid_X=vali_x,
+             test_X=test_x,
              train_y=train_y,
-             valid_y=valid_y,
+             valid_y=vali_y,
              test_y=test_y,
              train_error=train_error_df,
              valid_error=valid_error_df,
@@ -118,8 +114,8 @@ def unify_input_data():
             )
 
 
-def load_data():
-    input_data = np.load('dataset/input.npz')
+def load_data(dataset_path):
+    input_data = np.load(dataset_path)
     train_X = input_data['train_X']
     valid_X = input_data['valid_X']
     test_X  = input_data['test_X' ]
@@ -210,6 +206,6 @@ def evaluate_agent(agent, test_states, test_bm_preds, test_y):
     weights = np.expand_dims(weights, -1)  # (2816, 9, 1)
     weighted_y = weights * test_bm_preds  # (2816, 9, 24)
     weighted_y = weighted_y.sum(1)  # (2816, 24)
-    mae_loss = mean_absolute_error(inv_trans(test_y), inv_trans(weighted_y))
-    mape_loss = mean_absolute_percentage_error(inv_trans(test_y), inv_trans(weighted_y))
+    mae_loss = mean_absolute_error(test_y, weighted_y)
+    mape_loss = mean_absolute_percentage_error(test_y, weighted_y)
     return mae_loss, mape_loss, act_sorted
