@@ -93,16 +93,23 @@ def main():
 
     # RL
     parser.add_argument('--rl_seed', default=42, type=int)
-    parser.add_argument('--use_weight',   action='store_true', default=False)
+    parser.add_argument('--use_weight',   action='store_true', default=True)
     parser.add_argument('--use_td',       action='store_false', default=True)
     parser.add_argument('--use_extra',    action='store_false', default=True)
     parser.add_argument('--use_pretrain', action='store_false', default=True)
-    parser.add_argument('--epsilon', default=0.5, type=float)
+
+    parser.add_argument('--epsilon', default=0.3, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)
-    parser.add_argument('--feat_len', default=20, type=int)
-    parser.add_argument('--lrRL', default=1e-4, type=float, help='learning rate for reinforcement learning')
+    parser.add_argument('--feat_len', default=24, type=int)
+
+    parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
+    parser.add_argument('--RL_epochs', default=500, type=int, help='epoch for reinforcement learning')
+    parser.add_argument('--RL_warmup_epochs', default=200, type=int, help='warmup epoch for reinforcement learning')
+    parser.add_argument('--RL_pretrain_epochs', default=200, type=int, help='pretrain epoch for reinforcement learning')
+
     parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
     parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
+    parser.add_argument('--hidden_dim', default=128, type=int, help='hidden dimension for RL CNN')
 
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 

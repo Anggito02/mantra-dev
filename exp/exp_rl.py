@@ -17,16 +17,16 @@ class OPT_RL_Mantra(Exp_Basic):
         self.args = args
         self.setting = setting
         self.device = self._acquire_device()
-        self.RL_DATA_PATH = f'{args.checkpoints}/{setting}/'
+        self.RL_DATA_PATH = f'{args.checkpoints}{setting}'
         self.BUFFER_PATH = f'{self.RL_DATA_PATH}/buffer/'
 
     def forward(self):
         unify_input_data(self.RL_DATA_PATH)
 
-        (train_X, valid_X, test_X, train_y, valid_y, test_y, train_error, valid_error, _) = load_data()
+        (train_X, valid_X, test_X, train_y, valid_y, test_y, train_error, valid_error, _) = load_data(f'{self.RL_DATA_PATH}/dataset/input_rl.npz')
 
-        # valid_preds = np.load(f'{DATA_DIR}/bm_valid_preds.npy')
-        # test_preds = np.load(f'{DATA_DIR}/bm_test_preds.npy')
+        valid_preds = np.load(f'{self.RL_DATA_PATH}/rl_bm/bm_vali_preds.npy')
+        test_preds = np.load(f'{self.RL_DATA_PATH}/rl_bm/bm_test_preds.npy')
 
         train_X = np.swapaxes(train_X, 2, 1)
         valid_X = np.swapaxes(valid_X, 2, 1)
@@ -42,10 +42,10 @@ class OPT_RL_Mantra(Exp_Basic):
         valid_states = torch.FloatTensor(valid_X).to(self.device)
         test_states = torch.FloatTensor(test_X).to(self.device)
         
-        obs_dim = train_X.shape[1]          # observation dimension
-        act_dim = train_error.shape[-1]     # act dimension
+        obs_dim = train_X.shape[1]          # observation dimension (dataset features)
+        act_dim = train_error.shape[-1]     # actor dimension (action dimension)
 
-        env = Env(train_error, train_y)
+        env = Env(train_error, train_y, self.RL_DATA_PATH)
         best_model_weight = get_state_weight(train_error)
 
         if not os.path.exists(self.BUFFER_PATH):
@@ -62,9 +62,11 @@ class OPT_RL_Mantra(Exp_Basic):
                 batch_buffer,
                 columns=['state_idx', 'action_idx', 'rank', 'mape', 'mae', 'best_model_weight']
             )
-            batch_buffer_df.to_csv(self.BUFFER_PATH)
+
+            os.makedirs(self.BUFFER_PATH)
+            batch_buffer_df.to_csv(f'{self.BUFFER_PATH}/batch_buffer.csv')
         else:
-            batch_buffer_df = pd.read_csv(self.BUFFER_PATH, index_col=0)
+            batch_buffer_df = pd.read_csv(f'{self.BUFFER_PATH}/batch_buffer.csv', index_col=0)
         
         q_mape = [batch_buffer_df['mape'].quantile(0.1*i) for i in range(1, 10)]
         # q_mae = [batch_buffer_df['mape'].quantile(0.1*i) for i in range(1, 10)]
@@ -80,32 +82,33 @@ class OPT_RL_Mantra(Exp_Basic):
             state_weights = None
 
         # initialize the DDPG agent
-        agent = DDPGAgent(states, obs_dim, act_dim, hidden_dim=100)
-        replay_buffer = ReplayBuffer(act_dim, max_size=int(1e5))
-        extra_buffer = ReplayBuffer(act_dim, max_size=int(1e5))
+        agent = DDPGAgent(self.args, states, obs_dim, act_dim, self.args.hidden_dim, self.device)
+        replay_buffer = ReplayBuffer(self.args, self.device, act_dim, max_size=int(1e5))
+        extra_buffer = ReplayBuffer(self.args, self.device, act_dim, max_size=int(1e5))
 
         if self.args.use_pretrain:
             exp_pretrain = Exp_RL_Pretrain(
-                self.args, obs_dim, act_dim, hidden_dim=100, states=states, train_error=train_error, cls_weights=state_weights, valid_states=valid_states, valid_error=valid_error
+                self.args, self.device, obs_dim, act_dim, self.args.hidden_dim, states=states, train_error=train_error, cls_weights=state_weights, valid_states=valid_states, valid_error=valid_error
             )
 
-            pretrained_actor = exp_pretrain()
+            pretrained_actor = exp_pretrain.forward()
 
             # copy the pretrained actor 
             for param, target_param in zip(
                     pretrained_actor.parameters(), agent.actor.parameters()):
                 target_param.data.copy_(param.data)
+
             for param, target_param in zip(
                     pretrained_actor.parameters(), agent.target_actor.parameters()):
                 target_param.data.copy_(param.data)
 
         # to save the best model
-        best_actor = Actor(obs_dim, act_dim, hidden_dim=100).to(self.device)
+        best_actor = Actor(obs_dim, act_dim, self.args.hidden_dim).to(self.device)
         for param, target_param in zip(agent.actor.parameters(), best_actor.parameters()):
             target_param.data.copy_(param.data)
             
         # warm up
-        for _ in trange(200, desc='[Warm Up]'):
+        for _ in trange(self.args.RL_warmup_epochs, desc='[Warm Up]'):
             shuffle_idxes   = np.random.randint(0, L, 300)
             sampled_states  = states[shuffle_idxes] 
             sampled_actions = agent.select_action(sampled_states)
@@ -121,7 +124,7 @@ class OPT_RL_Mantra(Exp_Basic):
         best_mape_loss = np.inf
         patience, max_patience = 0, 5
 
-        for epoch in trange(500):
+        for epoch in trange(self.args.RL_epochs):
             t1 = time.time()
             q_loss_lst, pi_loss_lst, q_lst, target_q_lst  = [], [], [], []
             shuffle_idx = np.random.permutation(np.arange(L))
@@ -133,7 +136,7 @@ class OPT_RL_Mantra(Exp_Basic):
                     batch_actions = sparse_explore(batch_states, act_dim)
                 else:
                     batch_actions = agent.select_action(batch_states)
-                batch_rewards, batch_mae = get_batch_reward(env, batch_idx, batch_actions)
+                batch_rewards, batch_mae = get_batch_reward(env, batch_idx, batch_actions, q_mape)
                 
                 for j in range(len(batch_idx)):
                     replay_buffer.add(batch_idx[j], batch_actions[j], batch_rewards[j])
@@ -192,5 +195,12 @@ class OPT_RL_Mantra(Exp_Basic):
         
         print(f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}')
+        
+        res_file = open(f'result_RL_{self.args.exp_name}_{self.setting}.txt', 'a')
+        res_file.write(f'test_mae_loss: {test_mae_loss:.3f}\t'
+            f'test_mape_loss: {test_mape_loss*100:.3f}')
+        res_file.write('\n')
+        res_file.write('\n')
+        res_file.close()
         
         return

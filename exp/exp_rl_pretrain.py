@@ -3,13 +3,12 @@ import torch
 import torch.nn as nn
 from tqdm import trange
 
-from exp.exp_basic import Exp_Basic
-
 from models.ddpg import Actor
 
-class Exp_RL_Pretrain(Exp_Basic):
-    def __init__(self, args, obs_dim, act_dim, hidden_dim, states, train_error, cls_weights, valid_states, valid_error):
-        super(Exp_RL_Pretrain, self).__init__(args)
+class Exp_RL_Pretrain():
+    def __init__(self, args, device, obs_dim, act_dim, hidden_dim, states, train_error, cls_weights, valid_states, valid_error):        
+        self.args = args
+        self.device = device
 
         self.obs_dim = obs_dim
         self.act_dim = act_dim
@@ -27,7 +26,7 @@ class Exp_RL_Pretrain(Exp_Basic):
 
         actor = Actor(self.obs_dim, self.act_dim, self.hidden_dim).to(self.device)
         best_actor = Actor(self.obs_dim, self.act_dim, self.hidden_dim).to(self.device)
-        cls_weights = torch.FloatTensor([1/cls_weights[w] for w in range(self.act_dim)]).to(self.device)
+        cls_weights = torch.FloatTensor([1/self.cls_weights[w] for w in range(self.act_dim)]).to(self.device)
 
         L = len(self.states)
         batch_size = 512
@@ -37,7 +36,7 @@ class Exp_RL_Pretrain(Exp_Basic):
         best_acc   = 0
         patience   = 0
         max_patience = 5
-        for epoch in trange(200, desc='[Pretrain]'):
+        for epoch in trange(self.args.RL_pretrain_epochs, desc='[Pretrain]'):
             epoch_loss = []
             shuffle_idx = np.random.permutation(np.arange(L))
             for i in range(batch_num):

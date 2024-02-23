@@ -77,7 +77,7 @@ def unify_input_data(data_path):
         train_preds = np.expand_dims(train_preds, axis=1)
         merge_data.append(train_preds)
     train_preds_merge_data = np.concatenate(merge_data, axis=1)
-    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', merge_data)
+    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', train_preds_merge_data)
 
     merge_data = []
     valid_preds_npz = np.load(f'{data_path}/rl_bm/bm_vali_preds.npz')
@@ -86,7 +86,7 @@ def unify_input_data(data_path):
         valid_preds = np.expand_dims(valid_preds, axis=1)
         merge_data.append(valid_preds)
     valid_preds_merge_data = np.concatenate(merge_data, axis=1)
-    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds)
+    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds_merge_data)
 
     merge_data = []
     test_preds_npz = np.load(f'{data_path}/rl_bm/bm_test_preds.npz')
@@ -95,7 +95,7 @@ def unify_input_data(data_path):
         test_preds = np.expand_dims(test_preds, axis=1)
         merge_data.append(test_preds)
     test_preds_merge_data = np.concatenate(merge_data, axis=1)
-    np.save(f'{data_path}/rl_bm/bm_test_preds.npy', test_preds)
+    np.save(f'{data_path}/rl_bm/bm_test_preds.npy', test_preds_merge_data)
 
     train_error_df = compute_mape_error(train_y, train_preds_merge_data)
     valid_error_df = compute_mape_error(vali_y, valid_preds_merge_data)
@@ -160,11 +160,11 @@ def plot_best_data(train_error, valid_error, test_error):
     fig.savefig('jena_best_model.png', dpi=300)
 
 # mape reward computed by the quantile
-def get_mape_reward(q_mape, mape):
+def get_mape_reward(q_mape, mape, R=1):
     q = 0
     while (q < 9) and (mape > q_mape[q]):
         q += 1
-    reward = 1 - 2 * q / 9
+    reward = -R + 2*R*(9 - q)/9
     return reward
 
 
@@ -177,9 +177,9 @@ def get_mae_reward(q_mae, mae):
     return reward
 
 # rank reward
-def get_rank_reward(rank):
-    reward = 1 - 2 * rank / 9
-    return reward
+def get_rank_reward(rank, R=1):
+        reward = -R + 2*R*(9 - rank)/9
+        return reward
 
 def get_batch_reward(env, idxes, actions, q_mape, q_mae=None):
     rewards = []

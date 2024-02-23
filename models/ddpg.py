@@ -6,51 +6,58 @@ import torch.nn.functional as F
 from scipy.special import softmax
 
 from torch.optim import Adam
-from models.B6iFast import Model as B6iFast
+from models.causal_cnn import CausalCNNEncoder
 from exp.exp_basic import Exp_Basic
 
-class Actor(nn.Module, Exp_Basic):
-    def __init__(self, act_dim, hidden_dim) -> None:
+class Actor(nn.Module):
+    def __init__(self, obs_dim, act_dim, hidden_dim=100):
         super().__init__()
-
-        self.fast_learner = B6iFast(self.args)
+        self.cnn_encoder = CausalCNNEncoder(depth=3,
+                                            kernel_size=3,
+                                            in_channels=obs_dim,
+                                            channels=40,
+                                            out_channels=hidden_dim,
+                                            reduced_size=hidden_dim)
         self.net = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim, hidden_dim), 
             nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim, hidden_dim), 
             nn.ReLU(),
             nn.Linear(hidden_dim, act_dim)
         )
-
-    def forward(self, x_enc, x_enc_mark):
-        x = F.relu(self.fast_learner(x_enc, x_enc_mark, x_dec=None, x_dec_mark=None))
+    
+    def forward(self, obs):
+        x = F.relu(self.cnn_encoder(obs))
         x = self.net(x)
         return x
-    
-class Critic(nn.Module, Exp_Basic):
-    def __init__(self, act_dim, hidden_dim) -> None:
-        super().__init__()
 
-        self.fast_learner = B6iFast(self.args)
+
+class Critic(nn.Module):
+    def __init__(self, obs_dim, act_dim, hidden_dim=100):
+        super().__init__()
+        self.cnn_encoder = CausalCNNEncoder(depth=3,
+                                            kernel_size=3,
+                                            in_channels=obs_dim,
+                                            channels=40,
+                                            out_channels=hidden_dim,
+                                            reduced_size=hidden_dim)
         self.act_layer = nn.Linear(act_dim, hidden_dim)
         self.fc_layer = nn.Linear(hidden_dim, 1)
-        self.net = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1)
-        )
+        self.net = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), 
+                                 nn.ReLU(),
+                                 nn.Linear(hidden_dim, hidden_dim),
+                                 nn.ReLU(),
+                                 nn.Linear(hidden_dim, 1))
 
-    def forward(self, x_enc, x_enc_mark):
-        x = F.relu(self.fast_learner(x_enc, x_enc_mark, x_dec=None, x_dec_mark=None))
+    def forward(self, obs, act):
+        x = F.relu(self.cnn_encoder(obs) + self.act_layer(act))
         x = self.net(x)
         return x.squeeze()
 
-class ReplayBuffer(Exp_Basic):
-    def __init__(self, args, action_dim, max_size=int(1e5)):
-        super().__init__(args)
-
+class ReplayBuffer():
+    def __init__(self, args, device, action_dim, max_size=int(1e5)):
+        self.args = args
+        self.device = device
         self.max_size = max_size
         self.ptr = 0
         self.size = 0
@@ -74,19 +81,21 @@ class ReplayBuffer(Exp_Basic):
         rewards = torch.FloatTensor(self.rewards[ind]).to(self.device)
         return (states, actions, rewards.squeeze())
 
-class DDPGAgent(Exp_Basic):
-    def __init__(self, states, obs_dim, act_dim, hidden_dim) -> None:
+class DDPGAgent():
+    def __init__(self, args, states, obs_dim, act_dim, hidden_dim, device) -> None:
         super().__init__()
+        self.args = args
+        self.device = device
 
         # Initialize actor and target actor
-        self.actor = Actor(act_dim, hidden_dim).to(self.device)
+        self.actor = Actor(obs_dim, act_dim, hidden_dim).to(self.device)
         self.target_actor = Actor(obs_dim, act_dim, hidden_dim).to(self.device)
-        self.actor_optimizer = Adam(self.actor.parameters(), lr=self.args.lrRL)
+        self.actor_optimizer = Adam(self.actor.parameters(), lr=self.args.learn_rate_RL)
 
         # Initialize critic
         self.critic = Critic(obs_dim, act_dim, hidden_dim).to(self.device)
         self.target_critic = Critic(obs_dim, act_dim, hidden_dim).to(self.device)
-        self.critic_optimizer = Adam(self.critic.parameters(), lr=self.args.rlRL)
+        self.critic_optimizer = Adam(self.critic.parameters(), lr=self.args.learn_rate_RL)
 
         # Training states
         self.states = states
@@ -98,7 +107,7 @@ class DDPGAgent(Exp_Basic):
 
         # Update the target network
         for param, target_param in zip(
-            self.critic.parameters(), self.target_critic.parameters()):
+                self.critic.parameters(), self.target_critic.parameters()):
             target_param.data.copy_(param.data)
 
         for param, target_param in zip(
