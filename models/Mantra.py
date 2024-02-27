@@ -172,11 +172,11 @@ class Model(nn.Module):
         # print("dec_out2 before mean")
         # print(dec_out2.shape)
         dec_out2 = torch.mean(dec_out2,axis=1)
-        # print("dec_out2 after mean")
-        # print(dec_out2.shape)
+        print("dec_out2 after mean")
+        print(dec_out2.shape)
         dec_out2 = dec_out2.reshape(dec_out2.shape[0],dec_out2.shape[2],dec_out2.shape[1])
-        # print("dec_out2 after reshape")
-        # print(dec_out2.shape)
+        print("dec_out2 after reshape")
+        print(dec_out2.shape)
         urt_out = self.URT_model(dec_out2)
         # For single head only
         urt_out = urt_out[:,:,0]

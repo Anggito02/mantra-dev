@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, B8autoformer, B9autoformer  
+from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, B8autoformer, B9autoformer, B6iFast, S1iSlow
 from models import Uautoformer, UautoformerC1, UautoformerC2, Uautoformer2, Transformer, Reformer, Mantra, MantraV1, MantraA, MantraB, MantraD, MantraE
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
@@ -57,10 +57,16 @@ class Opt_URT(Exp_Basic):
             'Transformer': Transformer,
             'Informer': Informer,
             'Reformer': Reformer,
+            'B6iFast': B6iFast,
+            'S1iSlow': S1iSlow,
         }
         model = model_dict[self.args.model].Model(self.args).float()
         # self.slow_model = model_dict[self.args.slow_model].Model(self.args).float().cuda()
         # self.slow_model = model_dict['Autoformer'].Model(self.args).float().cuda()
+
+        # Move URT to init
+        self.URT = MultiHeadURT(key_dim=self.args.pred_len , query_dim=self.args.pred_len*self.args.enc_in, hid_dim=4096, temp=1, att="cosine", n_head=self.args.urt_heads).float().cuda()
+
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
@@ -154,9 +160,7 @@ class Opt_URT(Exp_Basic):
 
 
     def train_urt(self, setting):
-        
         self.model.load_state_dict(torch.load(os.path.join(str(self.args.checkpoints) + setting, 'checkpoint.pth')))
-        self.URT = MultiHeadURT(key_dim=self.args.pred_len , query_dim=self.args.pred_len*self.args.enc_in, hid_dim=4096, temp=1, att="cosine", n_head=self.args.urt_heads).float().cuda()
         
         print("Train URT layer >>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     
@@ -476,11 +480,11 @@ class Opt_URT(Exp_Basic):
         np.save(folder_path + 'true.npy', trues)
 
 
-        fname = "ZZZ_Mantra_ETTm2_pl"+str(self.args.pred_len)+".h5"
-        hf = h5py.File(fname, 'w')
-        hf.create_dataset('preds', data=preds)
-        hf.create_dataset('trues', data=trues)
-        hf.close()
+        # fname = "ZZZ_Mantra_ETTm2_pl"+str(self.args.pred_len)+".h5"
+        # hf = h5py.File(fname, 'w')
+        # hf.create_dataset('preds', data=preds)
+        # hf.create_dataset('trues', data=trues)
+        # hf.close()
 
         #     np.savetxt(fname, trues[:,:,col],delimiter=",")
 
