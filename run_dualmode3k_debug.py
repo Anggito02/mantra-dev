@@ -72,8 +72,8 @@ def main():
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
-    parser.add_argument('--itr', type=int, default=3, help='experiments times')
-    parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
+    parser.add_argument('--itr', type=int, default=1, help='experiments times')
+    parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate')
@@ -100,12 +100,13 @@ def main():
 
     parser.add_argument('--epsilon', default=0.3, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)
-    parser.add_argument('--feat_len', default=24, type=int)
 
     parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
     parser.add_argument('--RL_epochs', default=500, type=int, help='epoch for reinforcement learning')
     parser.add_argument('--RL_warmup_epochs', default=200, type=int, help='warmup epoch for reinforcement learning')
     parser.add_argument('--RL_pretrain_epochs', default=200, type=int, help='pretrain epoch for reinforcement learning')
+    parser.add_argument('--RL_step_size', default=4, type=int, help='step size for reinforcement learning')
+    parser.add_argument('--RL_max_patience', default=5, type=int, help='max patience for reinforcement learning')
 
     parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
     parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
@@ -181,7 +182,7 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # exp.train(setting)
+            exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)

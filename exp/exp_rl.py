@@ -33,10 +33,6 @@ class OPT_RL_Mantra(Exp_Basic):
         test_X  = np.swapaxes(test_X,  2, 1)
 
         L = len(train_X) - 1 if self.args.use_td else len(train_X)
-        
-        train_X = train_X[:, :, -self.args.feat_len:]
-        valid_X = valid_X[:, :, -self.args.feat_len:]
-        test_X  = test_X[:,  :, -self.args.feat_len:]
 
         states = torch.FloatTensor(train_X).to(self.device)
         valid_states = torch.FloatTensor(valid_X).to(self.device)
@@ -119,17 +115,18 @@ class OPT_RL_Mantra(Exp_Basic):
                 if self.args.use_extra and sampled_rewards[i] <= -1.:
                     extra_buffer.add(shuffle_idxes[i], sampled_actions[i], sampled_rewards[i])
 
-        step_size = 4
+        step_size = self.args.RL_step_size
         step_num  = int(np.ceil(L / step_size))
         best_mape_loss = np.inf
-        patience, max_patience = 0, 5
+        patience, max_patience = 0, self.args.RL_max_patience
+        epsilon = self.args.epsilon
 
         for epoch in trange(self.args.RL_epochs):
             t1 = time.time()
             q_loss_lst, pi_loss_lst, q_lst, target_q_lst  = [], [], [], []
             shuffle_idx = np.random.permutation(np.arange(L))
 
-            for i in range(step_num):
+            for i in trange(step_num, desc=f'[Step Num]'):
                 batch_idx = shuffle_idx[i*step_size: (i+1)*step_size]        # (512,)
                 batch_states = states[batch_idx]
                 if np.random.random() < self.args.epsilon:
@@ -143,8 +140,19 @@ class OPT_RL_Mantra(Exp_Basic):
                     if self.args.use_extra and batch_rewards[j] <= -1.:
                         extra_buffer.add(batch_idx[j], batch_actions[j], batch_rewards[j])
 
-                for _ in range(1):
-                    sampled_obs_idxes, sampled_actions, sampled_rewards = replay_buffer.sample(512)
+                sampled_obs_idxes, sampled_actions, sampled_rewards = replay_buffer.sample(512)
+                if self.args.use_weight:
+                    sampled_weights = state_weights[sampled_obs_idxes]
+                else:
+                    sampled_weights = None
+                info = agent.update(sampled_obs_idxes, sampled_actions, sampled_rewards, sampled_weights)
+                pi_loss_lst.append(info['pi_loss'])
+                q_loss_lst.append(info['q_loss'])
+                q_lst.append(info['current_q'])
+                target_q_lst.append(info['target_q'])
+
+                if self.args.use_extra and extra_buffer.ptr > 512:
+                    sampled_obs_idxes, sampled_actions, sampled_rewards = extra_buffer.sample(512)
                     if self.args.use_weight:
                         sampled_weights = state_weights[sampled_obs_idxes]
                     else:
@@ -154,18 +162,6 @@ class OPT_RL_Mantra(Exp_Basic):
                     q_loss_lst.append(info['q_loss'])
                     q_lst.append(info['current_q'])
                     target_q_lst.append(info['target_q'])
-
-                    if self.args.use_extra and extra_buffer.ptr > 512:
-                        sampled_obs_idxes, sampled_actions, sampled_rewards = extra_buffer.sample(512)
-                        if self.args.use_weight:
-                            sampled_weights = state_weights[sampled_obs_idxes]
-                        else:
-                            sampled_weights = None
-                        info = agent.update(sampled_obs_idxes, sampled_actions, sampled_rewards, sampled_weights)
-                        pi_loss_lst.append(info['pi_loss'])
-                        q_loss_lst.append(info['q_loss'])
-                        q_lst.append(info['current_q'])
-                        target_q_lst.append(info['target_q'])
 
             valid_mae_loss, valid_mape_loss, count_lst = evaluate_agent(agent, valid_states, valid_preds, valid_y)
             print(f'\n# Epoch {epoch + 1} ({(time.time() - t1)/60:.2f} min): '
@@ -196,7 +192,10 @@ class OPT_RL_Mantra(Exp_Basic):
         print(f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}')
         
-        res_file = open(f'result_RL_{self.args.exp_name}_{self.setting}.txt', 'a')
+        if not os.path.exists(self.RL_DATA_PATH):
+            os.makedirs(f'{self.RL_DATA_PATH}/result/')
+
+        res_file = open(f'{self.RL_DATA_PATH}/result_RL.txt', 'a')
         res_file.write(f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}')
         res_file.write('\n')
