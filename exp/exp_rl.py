@@ -164,12 +164,25 @@ class OPT_RL_Mantra(Exp_Basic):
                     target_q_lst.append(info['target_q'])
 
             valid_mae_loss, valid_mape_loss, count_lst = evaluate_agent(agent, valid_states, valid_preds, valid_y)
+
             print(f'\n# Epoch {epoch + 1} ({(time.time() - t1)/60:.2f} min): '
                 f'valid_mae_loss: {valid_mae_loss:.3f}\t'
                 f'valid_mape_loss: {valid_mape_loss*100:.3f}\t' 
                 f'q_loss: {np.average(q_loss_lst):.5f}\t'
                 f'current_q: {np.average(q_lst):.5f}\t'
                 f'target_q: {np.average(target_q_lst):.5f}\n')
+            
+            if not os.path.exists(self.RL_DATA_PATH):
+                os.makedirs(f'{self.RL_DATA_PATH}/result/')
+
+            log_file = open(f'{self.RL_DATA_PATH}/result/log_RL.txt', 'a')
+            log_file.write(f'\n# Epoch {epoch + 1}:\n'
+                f'valid_mae_loss: {valid_mae_loss:.3f}\t'
+                f'valid_mape_loss: {valid_mape_loss*100:.3f}\t'
+                f'q_loss: {np.average(q_loss_lst):.5f}\t'
+                f'current_q: {np.average(q_lst):.5f}\t'
+                f'target_q: {np.average(target_q_lst):.5f}\n\n')
+            log_file.close()        
             
             if valid_mape_loss < best_mape_loss:
                 best_mape_loss = valid_mape_loss
@@ -186,7 +199,7 @@ class OPT_RL_Mantra(Exp_Basic):
         for param, target_param in zip(agent.actor.parameters(), best_actor.parameters()):
             param.data.copy_(target_param)
 
-        test_mae_loss, test_mape_loss, count_lst = evaluate_agent(
+        test_mse_loss, test_mae_loss, test_mape_loss, count_lst, pred, true = evaluate_agent(
             agent, test_states, test_preds, test_y)
         
         print(f'test_mae_loss: {test_mae_loss:.3f}\t'
@@ -195,11 +208,16 @@ class OPT_RL_Mantra(Exp_Basic):
         if not os.path.exists(self.RL_DATA_PATH):
             os.makedirs(f'{self.RL_DATA_PATH}/result/')
 
-        res_file = open(f'{self.RL_DATA_PATH}/result_RL.txt', 'a')
+        res_file = open(f'{self.RL_DATA_PATH}/result/result_RL.txt', 'a')
         res_file.write(f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}')
         res_file.write('\n')
         res_file.write('\n')
         res_file.close()
+
+        np.save(f'{self.RL_DATA_PATH}/result/' + 'count_sorted_act.npy', count_lst)
+        np.save(f'{self.RL_DATA_PATH}/result/' + 'metrics.npy', np.array([test_mse_loss, test_mae_loss, test_mape_loss]))
+        np.save(f'{self.RL_DATA_PATH}/result/' + 'pred.npy', pred)
+        np.save(f'{self.RL_DATA_PATH}/result/' + 'true.npy', true)
         
         return

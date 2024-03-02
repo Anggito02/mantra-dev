@@ -7,7 +7,7 @@ from tqdm import trange
 from collections import Counter
 
 from sktime.performance_metrics.forecasting import \
-    mean_absolute_error, mean_absolute_percentage_error
+    mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
 
 def get_state_weight(train_error):
     L = len(train_error)
@@ -219,6 +219,7 @@ def evaluate_agent(agent, test_states, test_bm_preds, test_y):
     for i in range(1, len(list_weighted_y)):
         weighted_y = np.concatenate((weighted_y, list_weighted_y[i]), axis=0)
 
+    mse_loss = mean_squared_error(test_y, weighted_y)
     mae_loss = mean_absolute_error(test_y, weighted_y)
     mape_loss = mean_absolute_percentage_error(test_y, weighted_y)
-    return mae_loss, mape_loss, act_sorted
+    return mse_loss, mae_loss, mape_loss, act_sorted, weighted_y, test_y
