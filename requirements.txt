@@ -1,6 +1,7 @@
 pandas
-sklearn
+scikit-learn
 torchvision
 numpy
 matplotlib
 reformer_pytorch
+h5py
