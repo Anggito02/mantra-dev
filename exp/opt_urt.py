@@ -64,6 +64,10 @@ class Opt_URT(Exp_Basic):
         # self.slow_model = model_dict[self.args.slow_model].Model(self.args).float().cuda()
         # self.slow_model = model_dict['Autoformer'].Model(self.args).float().cuda()
 
+        # Move URT to init
+        self.URT = MultiHeadURT(key_dim=self.args.pred_len , query_dim=self.args.pred_len*self.args.enc_in, hid_dim=4096, temp=1, att="cosine", n_head=self.args.urt_heads).float().cuda()
+
+
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
         return model
@@ -156,9 +160,7 @@ class Opt_URT(Exp_Basic):
 
 
     def train_urt(self, setting):
-        
         self.model.load_state_dict(torch.load(os.path.join(str(self.args.checkpoints) + setting, 'checkpoint.pth')))
-        self.URT = MultiHeadURT(key_dim=self.args.pred_len , query_dim=self.args.pred_len*self.args.enc_in, hid_dim=4096, temp=1, att="cosine", n_head=self.args.urt_heads).float().cuda()
         
         print("Train URT layer >>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     

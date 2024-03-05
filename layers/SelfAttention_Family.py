@@ -152,7 +152,11 @@ class AttentionLayer(nn.Module):
         _, S, _ = keys.shape
         H = self.n_heads
 
-        queries = self.query_projection(queries).view(B, L, H, -1)
+        ### iTransformer ###
+        # B = Batch Size                    # S = Number of variate
+        # L = Number of variates            # H = Number of heads / attention head
+
+        queries = self.query_projection(queries).view(B, L, H, -1)  # B L H 
         keys = self.key_projection(keys).view(B, S, H, -1)
         values = self.value_projection(values).view(B, S, H, -1)
 
