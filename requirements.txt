@@ -5,3 +5,4 @@ numpy
 matplotlib
 reformer_pytorch
 h5py
+tqdm
