@@ -163,9 +163,10 @@ class OPT_RL_Mantra(Exp_Basic):
                     q_lst.append(info['current_q'])
                     target_q_lst.append(info['target_q'])
 
-            valid_mae_loss, valid_mape_loss, count_lst = evaluate_agent(agent, valid_states, valid_preds, valid_y)
+            valid_mse_loss, valid_mae_loss, valid_mape_loss, count_lst, _, _ = evaluate_agent(agent, valid_states, valid_preds, valid_y)
 
             print(f'\n# Epoch {epoch + 1} ({(time.time() - t1)/60:.2f} min): '
+                f'valid_mse_loss: {valid_mse_loss:.3f}\t'
                 f'valid_mae_loss: {valid_mae_loss:.3f}\t'
                 f'valid_mape_loss: {valid_mape_loss*100:.3f}\t' 
                 f'q_loss: {np.average(q_loss_lst):.5f}\t'
@@ -177,6 +178,7 @@ class OPT_RL_Mantra(Exp_Basic):
 
             log_file = open(f'{self.RL_DATA_PATH}/result/log_RL.txt', 'a')
             log_file.write(f'\n# Epoch {epoch + 1}:\n'
+                f'valid_mse_loss: {valid_mse_loss:.3f}\t'
                 f'valid_mae_loss: {valid_mae_loss:.3f}\t'
                 f'valid_mape_loss: {valid_mape_loss*100:.3f}\t'
                 f'q_loss: {np.average(q_loss_lst):.5f}\t'
@@ -202,15 +204,21 @@ class OPT_RL_Mantra(Exp_Basic):
         test_mse_loss, test_mae_loss, test_mape_loss, count_lst, pred, true = evaluate_agent(
             agent, test_states, test_preds, test_y)
         
-        print(f'test_mae_loss: {test_mae_loss:.3f}\t'
-            f'test_mape_loss: {test_mape_loss*100:.3f}')
+        print(
+            f'test_mse_loss: {test_mse_loss:.3f}\t'
+            f'test_mae_loss: {test_mae_loss:.3f}\t'
+            f'test_mape_loss: {test_mape_loss*100:.3f}'
+            )
         
         if not os.path.exists(self.RL_DATA_PATH):
             os.makedirs(f'{self.RL_DATA_PATH}/result/')
 
         res_file = open(f'{self.RL_DATA_PATH}/result/result_RL.txt', 'a')
-        res_file.write(f'test_mae_loss: {test_mae_loss:.3f}\t'
-            f'test_mape_loss: {test_mape_loss*100:.3f}')
+        res_file.write(
+            f'test_mse_loss: {test_mse_loss:.3f}\t'
+            f'test_mae_loss: {test_mae_loss:.3f}\t'
+            f'test_mape_loss: {test_mape_loss*100:.3f}'
+            )
         res_file.write('\n')
         res_file.write('\n')
         res_file.close()
