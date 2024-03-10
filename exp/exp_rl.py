@@ -173,7 +173,7 @@ class OPT_RL_Mantra(Exp_Basic):
                 f'current_q: {np.average(q_lst):.5f}\t'
                 f'target_q: {np.average(target_q_lst):.5f}\n')
             
-            if not os.path.exists(self.RL_DATA_PATH):
+            if not os.path.exists(f"{self.RL_DATA_PATH}/result/"):
                 os.makedirs(f'{self.RL_DATA_PATH}/result/')
 
             log_file = open(f'{self.RL_DATA_PATH}/result/log_RL.txt', 'a')
