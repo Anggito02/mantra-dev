@@ -25,6 +25,7 @@ class OPT_RL_Mantra(Exp_Basic):
 
         (train_X, valid_X, test_X, train_y, valid_y, test_y, train_error, valid_error, _) = load_data(f'{self.RL_DATA_PATH}/dataset/input_rl.npz')
 
+        train_preds = np.load(f'{self.RL_DATA_PATH}/rl_bm/bm_train_preds.npy')
         valid_preds = np.load(f'{self.RL_DATA_PATH}/rl_bm/bm_vali_preds.npy')
         test_preds = np.load(f'{self.RL_DATA_PATH}/rl_bm/bm_test_preds.npy')
 
@@ -41,7 +42,7 @@ class OPT_RL_Mantra(Exp_Basic):
         obs_dim = train_X.shape[1]          # observation dimension (dataset features)
         act_dim = train_error.shape[-1]     # actor dimension (action dimension)
 
-        env = Env(train_error, train_y, self.RL_DATA_PATH)
+        env = Env(train_error, train_y, train_preds)
         best_model_weight = get_state_weight(train_error)
 
         if not os.path.exists(self.BUFFER_PATH):
@@ -65,7 +66,7 @@ class OPT_RL_Mantra(Exp_Basic):
             batch_buffer_df = pd.read_csv(f'{self.BUFFER_PATH}/batch_buffer.csv', index_col=0)
         
         q_mape = [batch_buffer_df['mape'].quantile(0.1*i) for i in range(1, 10)]
-        # q_mae = [batch_buffer_df['mape'].quantile(0.1*i) for i in range(1, 10)]
+        # q_mae = [batch_buffer_df['mae'].quantile(0.1*i) for i in range(1, 10)]
 
         if self.args.use_td:
             batch_buffer_df = batch_buffer_df.query(f'state_idx < {L}')
@@ -117,7 +118,7 @@ class OPT_RL_Mantra(Exp_Basic):
 
         step_size = self.args.RL_step_size
         step_num  = int(np.ceil(L / step_size))
-        best_mape_loss = np.inf
+        best_mse_loss = np.inf
         patience, max_patience = 0, self.args.RL_max_patience
         epsilon = self.args.epsilon
 
@@ -186,8 +187,8 @@ class OPT_RL_Mantra(Exp_Basic):
                 f'target_q: {np.average(target_q_lst):.5f}\n\n')
             log_file.close()        
             
-            if valid_mape_loss < best_mape_loss:
-                best_mape_loss = valid_mape_loss
+            if valid_mse_loss < best_mse_loss:
+                best_mse_loss = valid_mse_loss
                 patience = 0
                 # save best model
                 for param, target_param in zip(agent.actor.parameters(), best_actor.parameters()):

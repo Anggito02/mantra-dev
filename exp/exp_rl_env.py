@@ -2,9 +2,9 @@ import numpy as np
 from sktime.performance_metrics.forecasting import mean_absolute_error, mean_absolute_percentage_error
 
 class Env:
-    def __init__(self, train_error, train_y, rl_data_path):
+    def __init__(self, train_error, train_y, bm_train_preds):
         self.error = train_error
-        self.bm_preds = np.load(f'{rl_data_path}/rl_bm/bm_train_preds.npy')
+        self.bm_preds = bm_train_preds
         self.y = train_y
         
     def reward_func(self, idx, action):
@@ -12,7 +12,7 @@ class Env:
             tmp = np.zeros(self.bm_preds.shape[1])
             tmp[action] = 1.
             action = tmp
-        weighted_y = np.multiply(action.reshape(-1, 1, 1), self.bm_preds[idx])
+        weighted_y = np.multiply(action.reshape(-1, 1), self.bm_preds[idx])
         weighted_y = weighted_y.sum(axis=0)
         new_mape = mean_absolute_percentage_error(self.y[idx], weighted_y)
         new_mae = mean_absolute_error(self.y[idx], weighted_y)
