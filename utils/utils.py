@@ -96,17 +96,17 @@ def unify_input_data(data_path):
     test_preds_merge_data = np.concatenate(merge_data, axis=1)
 
     # reshape y and preds to 2 dim
-    train_y = train_y.reshape(train_y.shape[0]*train_y.shape[1], train_y.shape[2])
-    vali_y  = vali_y.reshape(vali_y.shape[0]*vali_y.shape[1], vali_y.shape[2])
-    test_y  = test_y.reshape(test_y.shape[0]*test_y.shape[1], test_y.shape[2])
+    # train_y = train_y.reshape(train_y.shape[0]*train_y.shape[1], train_y.shape[2])
+    # vali_y  = vali_y.reshape(vali_y.shape[0]*vali_y.shape[1], vali_y.shape[2])
+    # test_y  = test_y.reshape(test_y.shape[0]*test_y.shape[1], test_y.shape[2])
 
-    tr_shape = train_preds_merge_data.shape
-    v_shape = valid_preds_merge_data.shape
-    tst_shape = test_preds_merge_data.shape
+    # tr_shape = train_preds_merge_data.shape
+    # v_shape = valid_preds_merge_data.shape
+    # tst_shape = test_preds_merge_data.shape
     
-    train_preds_merge_data = train_preds_merge_data.reshape(tr_shape[0]*tr_shape[2], tr_shape[1], tr_shape[3])
-    valid_preds_merge_data = valid_preds_merge_data.reshape(v_shape[0]*v_shape[2], v_shape[1], v_shape[3])
-    test_preds_merge_data  = test_preds_merge_data.reshape(tst_shape[0]*tst_shape[2], tst_shape[1], tst_shape[3])
+    # train_preds_merge_data = train_preds_merge_data.reshape(tr_shape[0]*tr_shape[2], tr_shape[1], tr_shape[3])
+    # valid_preds_merge_data = valid_preds_merge_data.reshape(v_shape[0]*v_shape[2], v_shape[1], v_shape[3])
+    # test_preds_merge_data  = test_preds_merge_data.reshape(tst_shape[0]*tst_shape[2], tst_shape[1], tst_shape[3])
     
     # save preds
     np.save(f'{data_path}/rl_bm/bm_train_preds.npy', train_preds_merge_data)
