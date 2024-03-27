@@ -232,7 +232,7 @@ class OPT_RL_Mantra(Exp_Basic):
         np.save(f'{folder_path}/' + 'pred.npy', pred)
         np.save(f'{folder_path}/' + 'true.npy', true)
         
-        for i in range(pred):
+        for i in range(len(pred)):
             visual(true[i], pred[i], f'{folder_path}/' + f'{i}.pdf')
 
         return

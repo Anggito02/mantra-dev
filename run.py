@@ -182,7 +182,7 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+            # exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)

@@ -666,9 +666,11 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         # print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        preds_ot = preds[:, :, -1]
+        trues_ot = trues[:, :, -1]
 
-        for i in range (preds):
-            visual(trues[i], preds[i], os.path.join(folder_path, str(i) + '.pdf'))
+        for i in range(len(preds_ot)):
+            visual(trues_ot[i], preds_ot[i], os.path.join(folder_path, str(i) + '.pdf'))
 
         # preds = np.array(preds.flat)
         # trues = np.array(trues.flat)
