@@ -35,11 +35,11 @@ class Exp_RL_Pretrain():
         loss_fn    = nn.CrossEntropyLoss(weight=cls_weights)  # weighted CE loss
         best_acc   = 0
         patience   = 0
-        max_patience = 5
+        max_patience = self.args.RL_max_patience
         for epoch in trange(self.args.RL_pretrain_epochs, desc='[Pretrain]'):
             epoch_loss = []
             shuffle_idx = np.random.permutation(np.arange(L))
-            for i in range(batch_num):
+            for i in trange(batch_num, desc='[Pretrain Step]'):
                 batch_idx = shuffle_idx[i*batch_size: (i+1)*batch_size]
                 optimizer.zero_grad()
                 batch_out = actor(self.states[batch_idx])

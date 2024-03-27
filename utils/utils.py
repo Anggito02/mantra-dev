@@ -78,7 +78,6 @@ def unify_input_data(data_path):
         train_preds = np.expand_dims(train_preds, axis=1)
         merge_data.append(train_preds)
     train_preds_merge_data = np.concatenate(merge_data, axis=1)
-    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', train_preds_merge_data)
 
     merge_data = []
     valid_preds_npz = np.load(f'{data_path}/rl_bm/bm_vali_preds.npz')
@@ -87,7 +86,6 @@ def unify_input_data(data_path):
         valid_preds = np.expand_dims(valid_preds, axis=1)
         merge_data.append(valid_preds)
     valid_preds_merge_data = np.concatenate(merge_data, axis=1)
-    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds_merge_data)
 
     merge_data = []
     test_preds_npz = np.load(f'{data_path}/rl_bm/bm_test_preds.npz')
@@ -96,6 +94,10 @@ def unify_input_data(data_path):
         test_preds = np.expand_dims(test_preds, axis=1)
         merge_data.append(test_preds)
     test_preds_merge_data = np.concatenate(merge_data, axis=1)
+    
+    # save preds
+    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', train_preds_merge_data)
+    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds_merge_data)
     np.save(f'{data_path}/rl_bm/bm_test_preds.npy', test_preds_merge_data)
 
     train_error_df = compute_mape_error(train_y, train_preds_merge_data)
@@ -205,19 +207,9 @@ def evaluate_agent(agent, test_states, test_bm_preds, test_y):
     act_counter = Counter(weights.argmax(1))
     act_sorted  = sorted([(k, v) for k, v in act_counter.items()])
 
-    # Reshape bm_preds and y
-    test_bm_preds = test_bm_preds.reshape(test_bm_preds.shape[0] * test_bm_preds.shape[2], test_bm_preds.shape[1], test_bm_preds.shape[3])  # 1536, 3, 7
-    test_y = test_y.reshape(test_y.shape[0]*test_y.shape[1], test_y.shape[2])                                                               # 1536, 7
-
     weights = np.expand_dims(weights, -1)  # (2816, 9, 1)                                                                                   # 1536, 7, 1
-
-    list_weighted_y = []
-    for i in range(math.ceil(test_bm_preds.shape[0]/weights.shape[0])):
-        list_weighted_y.append(np.multiply(weights, test_bm_preds[i*weights.shape[0]:(i+1)*weights.shape[0]]).sum(1))
-
-    weighted_y = list_weighted_y[0]                                                                                                         # 1536, 7
-    for i in range(1, len(list_weighted_y)):
-        weighted_y = np.concatenate((weighted_y, list_weighted_y[i]), axis=0)
+    weighted_y = weights * test_bm_preds  # (2816, 9, 24)
+    weighted_y = weighted_y.sum(1)  # (2816, 24)
 
     mse_loss = mean_squared_error(test_y, weighted_y)
     mae_loss = mean_absolute_error(test_y, weighted_y)

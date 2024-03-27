@@ -1,281 +1,20 @@
 export CUDA_VISIBLE_DEVICES=0
 
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id E3k_36_24 \
-#   --model B6autoformer \
-#   --slow_model AutoformerS1 \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 24 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id ili_invertE3k_36_24 \
-#   --model B6iFast \
-#   --slow_model S1iSlow \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 24 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id E3k_36_36 \
-#   --model B6autoformer \
-#   --slow_model AutoformerS1 \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 36 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id ili_invertE3k_36_36 \
-#   --model B6iFast \
-#   --slow_model S1iSlow \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 36 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id E3k_36_48 \
-#   --model B6autoformer \
-#   --slow_model AutoformerS1 \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 48 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id ili_invertE3k_36_48 \
-#   --model B6iFast \
-#   --slow_model S1iSlow \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 48 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id E3k_36_60 \
-#   --model B6autoformer \
-#   --slow_model AutoformerS1 \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 60 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-# python -u run_dualmode3k.py \
-#   --is_training 1 \
-#   --root_path ./dataset/illness/ \
-#   --data_path national_illness.csv \
-#   --model_id ili_invertE3k_36_60 \
-#   --model B6iFast \
-#   --slow_model S1iSlow \
-#   --data custom \
-#   --features M \
-#   --seq_len 36 \
-#   --label_len 18 \
-#   --pred_len 60 \
-#   --e_layers 2 \
-#   --d_layers 1 \
-#   --factor 3 \
-#   --enc_in 7 \
-#   --dec_in 7 \
-#   --c_out 7 \
-#   --des 'Exp' \
-#   --n_learner 3 \
-#   --urt_heads 1 \
-#   --learning_rate 0.001 \
-#   --d_model 256 \
-#   --itr 3 \
-#   --fix_seed 2023 \
-#   --train_epochs 20 \
-#   --batch_size 32 \
-#   --checkpoints ./checkpoints1/
-
-python -u run_dualmode3k.py \
+python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id E3k_36_72 \
-  --model B6autoformer \
-  --slow_model AutoformerS1 \
-  --data custom \
-  --features M \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 72 \
-  --e_layers 2 \
-  --d_layers 1 \
-  --factor 3 \
-  --enc_in 7 \
-  --dec_in 7 \
-  --c_out 7 \
-  --des 'Exp' \
-  --n_learner 3 \
-  --urt_heads 1 \
-  --learning_rate 0.001 \
-  --d_model 256 \
-  --itr 3 \
-  --fix_seed 2023 \
-  --train_epochs 20 \
-  --batch_size 32 \
-  --checkpoints ./checkpoints1/
-
-python -u run_dualmode3k.py \
-  --is_training 1 \
-  --root_path ./dataset/illness/ \
-  --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_72 \
+  --model_id RL_36_24 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features M \
   --seq_len 36 \
   --label_len 18 \
-  --pred_len 72 \
+  --pred_len 24 \
   --e_layers 2 \
   --d_layers 1 \
-  --factor 3 \
+  --factor 1 \
   --enc_in 7 \
   --dec_in 7 \
   --c_out 7 \
@@ -283,57 +22,44 @@ python -u run_dualmode3k.py \
   --n_learner 3 \
   --urt_heads 1 \
   --learning_rate 0.001 \
-  --d_model 256 \
-  --itr 3 \
-  --fix_seed 2023 \
+  --d_model 512 \
+  --d-ff 2048 \
+  --itr 1 \
+  --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
-  --checkpoints ./checkpoints1/
+  --patience 3 \
+  --rl_seed 42 \
+  --use_weight True \
+  --use_td True \
+  --use_extra True \
+  --use_pretrain True \
+  --epsilon 0.3 \
+  --RL_epoch 1 \
+  --RL_warmup_epoch 100 \
+  --Rl_pretrain_epoch 200 \
+  --RL_step_size 450 \
+  --RL_max_patience 5 \
+  --gamma 0.99 \
+  --tau 0.005 \
+  --hidden_dim 128 \
+  --checkpoints ./checkpoints/
 
-python -u run_dualmode3k.py \
+python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id E3k_36_90 \
-  --model B6autoformer \
-  --slow_model AutoformerS1 \
-  --data custom \
-  --features M \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 90 \
-  --e_layers 2 \
-  --d_layers 1 \
-  --factor 3 \
-  --enc_in 7 \
-  --dec_in 7 \
-  --c_out 7 \
-  --des 'Exp' \
-  --n_learner 3 \
-  --urt_heads 1 \
-  --learning_rate 0.001 \
-  --d_model 256 \
-  --itr 3 \
-  --fix_seed 2023 \
-  --train_epochs 20 \
-  --batch_size 32 \
-  --checkpoints ./checkpoints1/
-
-python -u run_dualmode3k.py \
-  --is_training 1 \
-  --root_path ./dataset/illness/ \
-  --data_path national_illness.csv \
-  --model_id ili_invertE3k_36_90 \
+  --model_id RL_36_36 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features M \
   --seq_len 36 \
   --label_len 18 \
-  --pred_len 90 \
+  --pred_len 36 \
   --e_layers 2 \
   --d_layers 1 \
-  --factor 3 \
+  --factor 1 \
   --enc_in 7 \
   --dec_in 7 \
   --c_out 7 \
@@ -341,9 +67,115 @@ python -u run_dualmode3k.py \
   --n_learner 3 \
   --urt_heads 1 \
   --learning_rate 0.001 \
-  --d_model 256 \
-  --itr 3 \
-  --fix_seed 2023 \
+  --d_model 512 \
+  --d-ff 2048 \
+  --itr 1 \
+  --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
-  --checkpoints ./checkpoints1/
+  --patience 3 \
+  --rl_seed 42 \
+  --use_weight True \
+  --use_td True \
+  --use_extra True \
+  --use_pretrain True \
+  --epsilon 0.3 \
+  --RL_epoch 1 \
+  --RL_warmup_epoch 100 \
+  --Rl_pretrain_epoch 200 \
+  --RL_step_size 450 \
+  --RL_max_patience 5 \
+  --gamma 0.99 \
+  --tau 0.005 \
+  --hidden_dim 128 \
+  --checkpoints ./checkpoints/
+
+python -u run.py \
+  --is_training 1 \
+  --root_path ./dataset/illness/ \
+  --data_path national_illness.csv \
+  --model_id RL_36_48 \
+  --model B6iFast \
+  --slow_model S1iSlow \
+  --data custom \
+  --features M \
+  --seq_len 36 \
+  --label_len 18 \
+  --pred_len 48 \
+  --e_layers 2 \
+  --d_layers 1 \
+  --factor 1 \
+  --enc_in 7 \
+  --dec_in 7 \
+  --c_out 7 \
+  --des 'Exp' \
+  --n_learner 3 \
+  --urt_heads 1 \
+  --learning_rate 0.001 \
+  --d_model 512 \
+  --d-ff 2048 \
+  --itr 1 \
+  --fix_seed 2021 \
+  --train_epochs 20 \
+  --batch_size 32 \
+  --patience 3 \
+  --rl_seed 42 \
+  --use_weight True \
+  --use_td True \
+  --use_extra True \
+  --use_pretrain True \
+  --epsilon 0.3 \
+  --RL_epoch 1 \
+  --RL_warmup_epoch 100 \
+  --Rl_pretrain_epoch 200 \
+  --RL_step_size 450 \
+  --RL_max_patience 5 \
+  --gamma 0.99 \
+  --tau 0.005 \
+  --hidden_dim 128 \
+  --checkpoints ./checkpoints/
+
+python -u run.py \
+  --is_training 1 \
+  --root_path ./dataset/illness/ \
+  --data_path national_illness.csv \
+  --model_id RL_36_60 \
+  --model B6iFast \
+  --slow_model S1iSlow \
+  --data custom \
+  --features M \
+  --seq_len 36 \
+  --label_len 18 \
+  --pred_len 60 \
+  --e_layers 2 \
+  --d_layers 1 \
+  --factor 1 \
+  --enc_in 7 \
+  --dec_in 7 \
+  --c_out 7 \
+  --des 'Exp' \
+  --n_learner 3 \
+  --urt_heads 1 \
+  --learning_rate 0.001 \
+  --d_model 512 \
+  --d-ff 2048 \
+  --itr 1 \
+  --fix_seed 2021 \
+  --train_epochs 20 \
+  --batch_size 32 \
+  --patience 3 \
+  --rl_seed 42 \
+  --use_weight True \
+  --use_td True \
+  --use_extra True \
+  --use_pretrain True \
+  --epsilon 0.3 \
+  --RL_epoch 1 \
+  --RL_warmup_epoch 100 \
+  --Rl_pretrain_epoch 200 \
+  --RL_step_size 450 \
+  --RL_max_patience 5 \
+  --gamma 0.99 \
+  --tau 0.005 \
+  --hidden_dim 128 \
+  --checkpoints ./checkpoints/
