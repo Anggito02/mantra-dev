@@ -36,7 +36,7 @@ class Exp_RL_Pretrain():
         best_acc   = 0
         patience   = 0
         max_patience = self.args.RL_max_patience
-        for epoch in trange(self.args.RL_pretrain_epochs, desc='[Pretrain]'):
+        for epoch in trange(self.args.RL_pretrain_epoch, desc='[Pretrain]'):
             epoch_loss = []
             shuffle_idx = np.random.permutation(np.arange(L))
             for i in trange(batch_num, desc='[Pretrain Step]'):

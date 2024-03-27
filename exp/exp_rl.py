@@ -106,7 +106,7 @@ class OPT_RL_Mantra(Exp_Basic):
             target_param.data.copy_(param.data)
             
         # warm up
-        for _ in trange(self.args.RL_warmup_epochs, desc='[Warm Up]'):
+        for _ in trange(self.args.RL_warmup_epoch, desc='[Warm Up]'):
             shuffle_idxes   = np.random.randint(0, L, 300)
             sampled_states  = states[shuffle_idxes] 
             sampled_actions = agent.select_action(sampled_states)
