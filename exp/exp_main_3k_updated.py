@@ -111,7 +111,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 temp_x, temp_y = batch_x, batch_y
         
                 input_flag_x.append(temp_x.numpy())
-                input_flag_y.append(temp_y[:, -self.args.pred_len:, f_dim:].numpy())
+
+                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                # TODO: Implementasi 'M'
+                input_flag_y.append(temp_y[:, -self.args.pred_len:, -1].numpy())
 
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
@@ -133,7 +136,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
                                 # Save bm_flag_preds
-                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                                # TODO: Implementasi 'M'
+                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
                         else:
                             # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
@@ -142,7 +147,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                                 # Save bm_flag_preds
-                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                                # TODO: Implementasi 'M'
+                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
                 else:
                     if self.args.output_attention:
                         # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
@@ -152,7 +159,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
                             # Save bm_flag_preds
-                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                            # TODO: Implementasi 'M'
+                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
                     else:
                         # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
@@ -161,7 +170,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                             # Save bm_flag_preds
-                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                            # TODO: Implementasi 'M'
+                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
 
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -261,7 +272,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 temp_x, temp_y = batch_x, batch_y
         
                 input_train_x.append(temp_x.numpy())
-                input_train_y.append(temp_y[:, -self.args.pred_len:, f_dim:].numpy())
+
+                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                # TODO: Implementasi 'M'
+                input_train_y.append(temp_y[:, -self.args.pred_len:, -1].numpy())
 
                 batch_x = batch_x.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
@@ -287,7 +301,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                                # TODO: Implementasi 'M'
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
                         else:
                             # print("enter else")
                             # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -297,7 +313,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                                # TODO: Implementasi 'M'
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
 
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -314,7 +332,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
 
                             # Save bm_train_preds
-                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                            # TODO: Implementasi 'M'
+                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
                     else:
                         # print("enter else")
                         # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -324,20 +344,14 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
                                 # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                                # TODO: Implementasi 'M'
+                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
 
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     loss = criterion(outputs, batch_y)
                     train_loss.append(loss.item())
-
-                if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
-                    speed = (time.time() - time_now) / iter_count
-                    left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
-                    iter_count = 0
-                    time_now = time.time()
 
                 need_update = True
                 if (i + 1) % 100 == 0:
@@ -377,13 +391,14 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                         model_optim.step()
                         # slow_model_optim.step()
 
-                loss = 0
-                s0,s1,s2 = batch_x.shape
-                randuniform = torch.empty(s0,s1,s2).uniform_(0, 1)
-                m_ones = torch.ones(s0,s1,s2).cuda()
-                slow_mark = torch.bernoulli(randuniform).cuda()
-                batch_x_slow = torch.clone(batch_x)
-                batch_x_slow = batch_x_slow * (m_ones-slow_mark)
+                # FIXME: Implementasi Slow model
+                # loss = 0
+                # s0,s1,s2 = batch_x.shape
+                # randuniform = torch.empty(s0,s1,s2).uniform_(0, 1)
+                # m_ones = torch.ones(s0,s1,s2).cuda()
+                # slow_mark = torch.bernoulli(randuniform).cuda()
+                # batch_x_slow = torch.clone(batch_x)
+                # batch_x_slow = batch_x_slow * (m_ones-slow_mark)
                 
                 #Update for slow model
                 # loss = 0
@@ -415,90 +430,90 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 # dec_inp = torch.zeros_like(batch_y[:, -minS1:, :]).float()
                 # dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-                if self.args.seq_len < self.args.pred_len:
-                    dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
-                else:
-                    dec_inp = torch.zeros_like(batch_x).float()
-                    # batch_y_mark = torch.cat((batch_y_mark,batch_y_mark),dim=1)
-                    d0,d1,d2 = batch_y_mark.shape
-                    # d1=self.args.seq_len * 2
-                    batch_y_mark2 = torch.empty(d0,d1,d2).uniform_(-1, 1).float().cuda()
-                    # print(batch_y_mark)
-                    batch_y_mark = torch.cat((batch_y_mark,batch_y_mark2),dim=1)
+                # if self.args.seq_len < self.args.pred_len:
+                #     dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
+                # else:
+                #     dec_inp = torch.zeros_like(batch_x).float()
+                #     # batch_y_mark = torch.cat((batch_y_mark,batch_y_mark),dim=1)
+                #     d0,d1,d2 = batch_y_mark.shape
+                #     # d1=self.args.seq_len * 2
+                #     batch_y_mark2 = torch.empty(d0,d1,d2).uniform_(-1, 1).float().cuda()
+                #     # print(batch_y_mark)
+                #     batch_y_mark = torch.cat((batch_y_mark,batch_y_mark2),dim=1)
 
-                # dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                # # dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
+                # dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-                if self.args.output_attention:
-                    # print("enter if")
-                    # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)[0]
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
-                    slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
+                # if self.args.output_attention:
+                #     # print("enter if")
+                #     # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
+                #     slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
                     
-                    # # print("check fast and slow output:")
-                    # print(fast_outputs.shape)
-                    # print(slow_out.shape)
-                    # print(fast_outputs.shape)
-                    # for nl in range(0,fast_outputs.shape[0]):
-                    #     fast_output_nl = fast_outputs[nl]
-                    #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
-                    #     # print(slow_out.shape)
+                #     # # print("check fast and slow output:")
+                #     # print(fast_outputs.shape)
+                #     # print(slow_out.shape)
+                #     # print(fast_outputs.shape)
+                #     # for nl in range(0,fast_outputs.shape[0]):
+                #     #     fast_output_nl = fast_outputs[nl]
+                #     #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
+                #     #     # print(slow_out.shape)
 
-                    #     f_dim = -1 if self.args.features == 'MS' else 0
-                    #     outputs = slow_out[:, -self.args.pred_len:, f_dim:]
-                    #     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    #     loss += criterion(outputs, batch_y)
-
-
-                        # slow_model_optim.zero_grad()
-                        # if self.args.use_amp:
-                        #     scaler.scale(loss).backward()
-                        #     scaler.step(slow_model_optim)
-                        #     scaler.update()
-                        # else:
-                        #     loss.backward()
-                        #     slow_model_optim.step()
-
-                else:
-                    # print("enter else")
-                    # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)
-                    # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
-                    slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
-                    # print("check fast and slow output:")
-                    # print(fast_outputs.shape)
-                    # print(slow_out.shape)
-                    # for nl in range(0,fast_outputs.shape[0]):
-                    #     fast_output_nl = fast_outputs[nl]
-                    #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
-                    #     # print(slow_out.shape)
+                #     #     f_dim = -1 if self.args.features == 'MS' else 0
+                #     #     outputs = slow_out[:, -self.args.pred_len:, f_dim:]
+                #     #     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                #     #     loss += criterion(outputs, batch_y)
 
 
-                outputs = slow_out[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
+                #         # slow_model_optim.zero_grad()
+                #         # if self.args.use_amp:
+                #         #     scaler.scale(loss).backward()
+                #         #     scaler.step(slow_model_optim)
+                #         #     scaler.update()
+                #         # else:
+                #         #     loss.backward()
+                #         #     slow_model_optim.step()
 
-                # loss += criterion(outputs, batch_y)
-                # loss += ssl_loss(slow_out, batch_x_slow, slow_mark, s1, s2)
-                # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
-                # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
-                # loss += ssl_loss(slow_out, batch_x, batch_x_mark, s1, s2)
+                # else:
+                #     # print("enter else")
+                #     # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)
+                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
+                #     slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
+                #     # print("check fast and slow output:")
+                #     # print(fast_outputs.shape)
+                #     # print(slow_out.shape)
+                #     # for nl in range(0,fast_outputs.shape[0]):
+                #     #     fast_output_nl = fast_outputs[nl]
+                #     #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
+                #     #     # print(slow_out.shape)
+
+
+                # outputs = slow_out[:, -self.args.pred_len:, f_dim:]
+                # batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                # loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
+
+                # # loss += criterion(outputs, batch_y)
+                # # loss += ssl_loss(slow_out, batch_x_slow, slow_mark, s1, s2)
+                # # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
+                # # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
+                # # loss += ssl_loss(slow_out, batch_x, batch_x_mark, s1, s2)
                 
 
-                if(need_update):
-                    slow_model_optim.zero_grad()
-                    if self.args.use_amp:
-                        scaler.scale(loss).backward()
-                        scaler.step(slow_model_optim)
-                        scaler.step(model_optim)
-                        scaler.update()
-                    else:
-                        loss.backward()
-                        slow_model_optim.step()
-                        model_optim.step()
+                # if(need_update):
+                #     slow_model_optim.zero_grad()
+                #     if self.args.use_amp:
+                #         scaler.scale(loss).backward()
+                #         scaler.step(slow_model_optim)
+                #         scaler.step(model_optim)
+                #         scaler.update()
+                #     else:
+                #         loss.backward()
+                #         slow_model_optim.step()
+                #         model_optim.step()
 
                 # print(fast_outputs.shape)
                 # print(outputs.shape)
