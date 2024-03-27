@@ -103,8 +103,8 @@ def main():
 
     parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
     parser.add_argument('--RL_epochs', default=1, type=int, help='epoch for reinforcement learning')
-    parser.add_argument('--RL_warmup_epochs', default=100, type=int, help='warmup epoch for reinforcement learning')
-    parser.add_argument('--RL_pretrain_epochs', default=200, type=int, help='pretrain epoch for reinforcement learning')
+    parser.add_argument('--RL_warmup_epoch', default=100, type=int, help='warmup epoch for reinforcement learning')
+    parser.add_argument('--RL_pretrain_epoch', default=200, type=int, help='pretrain epoch for reinforcement learning')
     parser.add_argument('--RL_step_size', default=450, type=int, help='step size for reinforcement learning')
     parser.add_argument('--RL_max_patience', default=5, type=int, help='max patience for reinforcement learning')
 
