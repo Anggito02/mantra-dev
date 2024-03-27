@@ -9,6 +9,7 @@ from exp.exp_basic import Exp_Basic
 from exp.exp_rl_pretrain import Exp_RL_Pretrain
 from exp.exp_rl_env import Env
 from utils.utils import unify_input_data, load_data, get_state_weight, get_batch_reward, sparse_explore, evaluate_agent
+from utils.tools import visual
 
 from models.ddpg import Actor, DDPGAgent, ReplayBuffer
 
@@ -20,7 +21,7 @@ class OPT_RL_Mantra(Exp_Basic):
         self.RL_DATA_PATH = f'{args.checkpoints}{setting}'
         self.BUFFER_PATH = f'{self.RL_DATA_PATH}/buffer/'
 
-    def forward(self):
+    def forward(self, setting):
         unify_input_data(self.RL_DATA_PATH)
 
         (train_X, valid_X, test_X, train_y, valid_y, test_y, train_error, valid_error, _) = load_data(f'{self.RL_DATA_PATH}/dataset/input_rl.npz')
@@ -174,10 +175,10 @@ class OPT_RL_Mantra(Exp_Basic):
                 f'current_q: {np.average(q_lst):.5f}\t'
                 f'target_q: {np.average(target_q_lst):.5f}\n')
             
-            if not os.path.exists(f"{self.RL_DATA_PATH}/result/"):
-                os.makedirs(f'{self.RL_DATA_PATH}/result/')
+            if not os.path.exists(f"{self.RL_DATA_PATH}/train_results/rl/"):
+                os.makedirs(f'{self.RL_DATA_PATH}/train_results/rl/')
 
-            log_file = open(f'{self.RL_DATA_PATH}/result/log_RL.txt', 'a')
+            log_file = open(f'{self.RL_DATA_PATH}/train_results/rl/rl_log.txt', 'a')
             log_file.write(f'\n# Epoch {epoch + 1}:\n'
                 f'valid_mse_loss: {valid_mse_loss:.3f}\t'
                 f'valid_mae_loss: {valid_mae_loss:.3f}\t'
@@ -205,16 +206,18 @@ class OPT_RL_Mantra(Exp_Basic):
         test_mse_loss, test_mae_loss, test_mape_loss, count_lst, pred, true = evaluate_agent(
             agent, test_states, test_preds, test_y)
         
+        # save result
+        folder_path = './checkpoints/' + setting + '/testing_results/rl/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
         print(
             f'test_mse_loss: {test_mse_loss:.3f}\t'
             f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}'
             )
-        
-        if not os.path.exists(self.RL_DATA_PATH):
-            os.makedirs(f'{self.RL_DATA_PATH}/result/')
 
-        res_file = open(f'{self.RL_DATA_PATH}/result/result_RL.txt', 'a')
+        res_file = open(f'{folder_path}/result_RL.txt', 'a')
         res_file.write(
             f'test_mse_loss: {test_mse_loss:.3f}\t'
             f'test_mae_loss: {test_mae_loss:.3f}\t'
@@ -224,9 +227,12 @@ class OPT_RL_Mantra(Exp_Basic):
         res_file.write('\n')
         res_file.close()
 
-        np.save(f'{self.RL_DATA_PATH}/result/' + 'count_sorted_act.npy', count_lst)
-        np.save(f'{self.RL_DATA_PATH}/result/' + 'metrics.npy', np.array([test_mse_loss, test_mae_loss, test_mape_loss]))
-        np.save(f'{self.RL_DATA_PATH}/result/' + 'pred.npy', pred)
-        np.save(f'{self.RL_DATA_PATH}/result/' + 'true.npy', true)
+        np.save(f'{folder_path}/' + 'count_sorted_act.npy', count_lst)
+        np.save(f'{folder_path}/' + 'metrics.npy', np.array([test_mse_loss, test_mae_loss, test_mape_loss]))
+        np.save(f'{folder_path}/' + 'pred.npy', pred)
+        np.save(f'{folder_path}/' + 'true.npy', true)
         
+        for i in range(len(pred//20)):
+            visual(true[i*20:(i+1)*20], pred[i*20:(i+1)*20], name=f'{folder_path}/test_{i}.pdf')
+
         return

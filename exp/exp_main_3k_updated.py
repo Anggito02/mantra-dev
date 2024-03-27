@@ -228,9 +228,15 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
 
+        # model path
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
+
+        # train result path
+        result_path = os.path.join(self.args.checkpoints, setting, 'train_results', 'mantra')
+        if not os.path.exists(result_path):
+            os.makedirs(result_path)
 
         time_now = time.time()
 
@@ -529,6 +535,11 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             early_stopping(vali_loss, self.model, path)
+
+            with open(f'{result_path}/mantra_log.txt', 'a') as f:
+                f.write(
+                    "Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}\n\n".format(
+                        epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             
             if early_stopping.early_stop:
                 print("Early stopping")
@@ -583,7 +594,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
+        folder_path = './checkpoints/' + setting + '/testing_results/mantra/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -666,19 +677,16 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         # print('test shape:', preds.shape, trues.shape)
 
         # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        result_path = os.path.join(folder_path, 'result_mantra.txt')
 
         print('test shape:', preds.shape, trues.shape)
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
-        f = open("result.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae))
-        f.write('\n')
-        f.write('\n')
-        f.close()
+        with open(f'{result_path}', 'a') as f:
+            f.write(setting + '  \n')
+            f.write('mse:{}, mae:{}'.format(mse, mae))
+            f.write('\n')
+            f.write('\n')
 
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
