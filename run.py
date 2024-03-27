@@ -93,10 +93,10 @@ def main():
 
     # RL
     parser.add_argument('--rl_seed', default=42, type=int)
-    parser.add_argument('--use_weight',   action='store_true', default=True)
-    parser.add_argument('--use_td',       action='store_false', default=True)
-    parser.add_argument('--use_extra',    action='store_false', default=True)
-    parser.add_argument('--use_pretrain', action='store_false', default=True)
+    parser.add_argument('--use_weight',   default=1, type=int)
+    parser.add_argument('--use_td',       default=1, type=int)
+    parser.add_argument('--use_extra',    default=1, type=int)
+    parser.add_argument('--use_pretrain', default=1, type=int)
 
     parser.add_argument('--epsilon', default=0.3, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)

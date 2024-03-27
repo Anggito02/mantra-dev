@@ -23,21 +23,21 @@ python -u run.py \
   --urt_heads 1 \
   --learning_rate 0.001 \
   --d_model 512 \
-  --d-ff 2048 \
+  --d_ff 2048 \
   --itr 1 \
   --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
   --patience 3 \
   --rl_seed 42 \
-  --use_weight True \
-  --use_td True \
-  --use_extra True \
-  --use_pretrain True \
+  --use_weight 1 \
+  --use_td 1 \
+  --use_extra 1 \
+  --use_pretrain 1 \
   --epsilon 0.3 \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
-  --Rl_pretrain_epoch 200 \
+  --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
   --RL_max_patience 5 \
   --gamma 0.99 \
@@ -68,21 +68,21 @@ python -u run.py \
   --urt_heads 1 \
   --learning_rate 0.001 \
   --d_model 512 \
-  --d-ff 2048 \
+  --d_ff 2048 \
   --itr 1 \
   --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
   --patience 3 \
   --rl_seed 42 \
-  --use_weight True \
-  --use_td True \
-  --use_extra True \
-  --use_pretrain True \
+  --use_weight 1 \
+  --use_td 1 \
+  --use_extra 1 \
+  --use_pretrain 1 \
   --epsilon 0.3 \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
-  --Rl_pretrain_epoch 200 \
+  --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
   --RL_max_patience 5 \
   --gamma 0.99 \
@@ -113,21 +113,21 @@ python -u run.py \
   --urt_heads 1 \
   --learning_rate 0.001 \
   --d_model 512 \
-  --d-ff 2048 \
+  --d_ff 2048 \
   --itr 1 \
   --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
   --patience 3 \
   --rl_seed 42 \
-  --use_weight True \
-  --use_td True \
-  --use_extra True \
-  --use_pretrain True \
+  --use_weight 1 \
+  --use_td 1 \
+  --use_extra 1 \
+  --use_pretrain 1 \
   --epsilon 0.3 \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
-  --Rl_pretrain_epoch 200 \
+  --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
   --RL_max_patience 5 \
   --gamma 0.99 \
@@ -158,21 +158,21 @@ python -u run.py \
   --urt_heads 1 \
   --learning_rate 0.001 \
   --d_model 512 \
-  --d-ff 2048 \
+  --d_ff 2048 \
   --itr 1 \
   --fix_seed 2021 \
   --train_epochs 20 \
   --batch_size 32 \
   --patience 3 \
   --rl_seed 42 \
-  --use_weight True \
-  --use_td True \
-  --use_extra True \
-  --use_pretrain True \
+  --use_weight 1 \
+  --use_td 1 \
+  --use_extra 1 \
+  --use_pretrain 1 \
   --epsilon 0.3 \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
-  --Rl_pretrain_epoch 200 \
+  --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
   --RL_max_patience 5 \
   --gamma 0.99 \
