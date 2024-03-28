@@ -219,7 +219,7 @@ class OPT_RL_Mantra(Exp_Basic):
             f'test_mape_loss: {test_mape_loss*100:.3f}'
             )
 
-        res_file = open(f'{testing_result_path}/result_RL.txt', 'a')
+        res_file = open(testing_result_path + 'result_RL.txt', 'a')
         res_file.write(
             f'test_mse_loss: {test_mse_loss:.3f}\t'
             f'test_mae_loss: {test_mae_loss:.3f}\t'
