@@ -4,7 +4,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_24_abb1 \
+  --model_id ILI_RL_36_24_abb2 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -38,7 +38,7 @@ python -u run.py \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 450 \
+  --RL_step_size 256 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -49,7 +49,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_36_abb1 \
+  --model_id ILI_RL_36_36_abb2 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -83,7 +83,7 @@ python -u run.py \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 450 \
+  --RL_step_size 256 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -94,7 +94,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_48_abb1 \
+  --model_id ILI_RL_36_48_abb2 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -128,7 +128,7 @@ python -u run.py \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 450 \
+  --RL_step_size 256 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -139,7 +139,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_60_abb1 \
+  --model_id ILI_RL_36_60_abb2 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -173,7 +173,7 @@ python -u run.py \
   --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 450 \
+  --RL_step_size 256 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
