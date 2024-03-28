@@ -4,11 +4,11 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id RL_36_24 \
+  --model_id ILI_RL_36_24 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
-  --features M \
+  --features MS \
   --seq_len 36 \
   --label_len 18 \
   --pred_len 24 \
@@ -49,11 +49,11 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id RL_36_36 \
+  --model_id ILI_RL_36_36 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
-  --features M \
+  --features MS \
   --seq_len 36 \
   --label_len 18 \
   --pred_len 36 \
@@ -94,11 +94,11 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id RL_36_48 \
+  --model_id ILI_RL_36_48 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
-  --features M \
+  --features MS \
   --seq_len 36 \
   --label_len 18 \
   --pred_len 48 \
@@ -139,11 +139,11 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id RL_36_60 \
+  --model_id ILI_RL_36_60 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
-  --features M \
+  --features MS \
   --seq_len 36 \
   --label_len 18 \
   --pred_len 60 \

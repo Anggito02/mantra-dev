@@ -211,13 +211,15 @@ class OPT_RL_Mantra(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
+        testing_result_path = './checkpoints/' + setting + '/testing_results/'
+
         print(
             f'test_mse_loss: {test_mse_loss:.3f}\t'
             f'test_mae_loss: {test_mae_loss:.3f}\t'
             f'test_mape_loss: {test_mape_loss*100:.3f}'
             )
 
-        res_file = open(f'{folder_path}/result_RL.txt', 'a')
+        res_file = open(f'{testing_result_path}/result_RL.txt', 'a')
         res_file.write(
             f'test_mse_loss: {test_mse_loss:.3f}\t'
             f'test_mae_loss: {test_mae_loss:.3f}\t'

@@ -683,7 +683,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         # print('test shape:', preds.shape, trues.shape)
 
         # result save
-        result_path = os.path.join(folder_path, 'result_mantra.txt')
+        result_path = os.path.join('/checkpoints', setting, 'testing_results', 'result_mantra.txt')
 
         print('test shape:', preds.shape, trues.shape)
         mae, mse, rmse, mape, mspe = metric(preds, trues)
