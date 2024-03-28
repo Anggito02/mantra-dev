@@ -265,10 +265,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            # print("======= Check before epoch =======")
-            # self.model.check_params()
-            print(train_loader)
-            print(self.args.n_learner)
 
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
                 iter_count += 1
