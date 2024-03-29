@@ -578,7 +578,7 @@ python -u run.py \
   --RL_epoch 3 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 256 \
+  --RL_step_size 4 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -623,7 +623,7 @@ python -u run.py \
   --RL_epoch 3 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 256 \
+  --RL_step_size 4 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -668,7 +668,7 @@ python -u run.py \
   --RL_epoch 3 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 256 \
+  --RL_step_size 4 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
@@ -713,7 +713,7 @@ python -u run.py \
   --RL_epoch 3 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
-  --RL_step_size 256 \
+  --RL_step_size 4 \
   --RL_max_patience 5 \
   --gamma 0.99 \
   --tau 0.005 \
