@@ -4,7 +4,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_24_abb3 \
+  --model_id ILI_RL_36_24_abb4 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -49,7 +49,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_36_abb3 \
+  --model_id ILI_RL_36_36_abb4 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -94,7 +94,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_48_abb3 \
+  --model_id ILI_RL_36_48_abb4 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
@@ -139,7 +139,7 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_60_abb3 \
+  --model_id ILI_RL_36_60_abb4 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
