@@ -62,7 +62,8 @@ class OPT_RL_Mantra(Exp_Basic):
             )
 
             os.makedirs(self.BUFFER_PATH)
-            batch_buffer_df.to_csv(f'{self.BUFFER_PATH}/batch_buffer.csv')
+            with open(f'{self.BUFFER_PATH}/batch_buffer.csv', 'w') as f:
+                batch_buffer_df.to_csv(f)
         else:
             batch_buffer_df = pd.read_csv(f'{self.BUFFER_PATH}/batch_buffer.csv', index_col=0)
         
