@@ -41,7 +41,7 @@ class Model(nn.Module):
                         # stdev = np.random.uniform(0, 0.01)
                         stdev = np.random.uniform(0.001, 0.01)
                         m.weight.data.normal_(0, stdev)
-                        print("stdev: " +str(stdev))
+                        # print("stdev: " +str(stdev))
             else:
                 for m in model.modules():
                     if isinstance(m, nn.Linear):

@@ -4,14 +4,14 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_24_abb3 \
+  --model_id ECL_RL_96_96_abb1 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features MS \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 24 \
+  --seq_len 96 \
+  --label_len 48 \
+  --pred_len 96 \
   --e_layers 2 \
   --d_layers 1 \
   --factor 1 \
@@ -35,7 +35,7 @@ python -u run.py \
   --use_extra 1 \
   --use_pretrain 1 \
   --epsilon 0.3 \
-  --RL_epoch 3 \
+  --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
@@ -49,14 +49,14 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_36_abb3 \
+  --model_id ECL_RL_96_192_abb1 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features MS \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 36 \
+  --seq_len 96 \
+  --label_len 48 \
+  --pred_len 192 \
   --e_layers 2 \
   --d_layers 1 \
   --factor 1 \
@@ -80,7 +80,7 @@ python -u run.py \
   --use_extra 1 \
   --use_pretrain 1 \
   --epsilon 0.3 \
-  --RL_epoch 3 \
+  --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
@@ -94,14 +94,14 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_48_abb3 \
+  --model_id ECL_RL_96_336_abb1 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features MS \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 48 \
+  --seq_len 96 \
+  --label_len 48 \
+  --pred_len 336 \
   --e_layers 2 \
   --d_layers 1 \
   --factor 1 \
@@ -125,7 +125,7 @@ python -u run.py \
   --use_extra 1 \
   --use_pretrain 1 \
   --epsilon 0.3 \
-  --RL_epoch 3 \
+  --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
@@ -139,14 +139,14 @@ python -u run.py \
   --is_training 1 \
   --root_path ./dataset/illness/ \
   --data_path national_illness.csv \
-  --model_id ILI_RL_36_60_abb3 \
+  --model_id ECL_RL_96_720_abb1 \
   --model B6iFast \
   --slow_model S1iSlow \
   --data custom \
   --features MS \
-  --seq_len 36 \
-  --label_len 18 \
-  --pred_len 60 \
+  --seq_len 96 \
+  --label_len 48 \
+  --pred_len 720 \
   --e_layers 2 \
   --d_layers 1 \
   --factor 1 \
@@ -170,7 +170,7 @@ python -u run.py \
   --use_extra 1 \
   --use_pretrain 1 \
   --epsilon 0.3 \
-  --RL_epoch 3 \
+  --RL_epoch 1 \
   --RL_warmup_epoch 100 \
   --RL_pretrain_epoch 200 \
   --RL_step_size 450 \
