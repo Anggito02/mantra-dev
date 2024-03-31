@@ -230,10 +230,14 @@ class OPT_RL_Mantra(Exp_Basic):
         res_file.write('\n')
         res_file.close()
 
-        np.save(f'{folder_path}/' + 'count_sorted_act.npy', count_lst)
-        np.save(f'{folder_path}/' + 'metrics.npy', np.array([test_mse_loss, test_mae_loss, test_mape_loss]))
-        np.save(f'{folder_path}/' + 'pred.npy', pred)
-        np.save(f'{folder_path}/' + 'true.npy', true)
+        with open(f'{folder_path}/' + 'count_sorted_act.npy', 'wb') as f:
+            np.save(f, count_lst)
+        with open(f'{folder_path}/' + 'metrics.npy', 'wb') as f:
+            np.save(f, np.array([test_mse_loss, test_mae_loss, test_mape_loss]))
+        with open(f'{folder_path}/' + 'pred.npy', 'wb') as f:
+            np.save(f, pred)
+        with open(f'{folder_path}/' + 'true.npy', 'wb') as f:
+            np.save(f, true)
         
         for i in range(len(pred)):
             visual(true[i], pred[i], f'{folder_path}/' + f'{i}.pdf')

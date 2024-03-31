@@ -129,8 +129,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
                             # Outputs for every models
                             for models_idx in range(self.args.n_learner):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
@@ -139,9 +137,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                                 # TODO: Implementasi 'M'
                                 bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
-                        else:
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
+                            # For Mantra
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        else:
                             # Outputs for every models
                             for models_idx in range(self.args.n_learner):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
@@ -150,10 +149,11 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                                 # TODO: Implementasi 'M'
                                 bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
+                            
+                            # For Mantra
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
                         # Outputs for every models
                         for models_idx in range(self.args.n_learner):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
@@ -162,9 +162,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                             # TODO: Implementasi 'M'
                             bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
-                    else:
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
+                        # For Mantra
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                    else:
                         # Outputs for every models
                         for models_idx in range(self.args.n_learner):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
@@ -173,6 +174,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                             # TODO: Implementasi 'M'
                             bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
+
+                        # For Mantra
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -203,8 +207,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             if not os.path.exists(self.args.checkpoints + '/' + setting + '/dataset/'):
                 os.makedirs(self.args.checkpoints + '/' + setting + '/dataset/')
 
-            np.save(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_x.npy', np_input_flag_x)
-            np.save(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_y.npy', np_input_flag_y)
+            with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_x.npy', 'wb') as f:
+                np.save(f, np_input_flag_x)
+            with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_y.npy', 'wb') as f:
+                np.save(f, np_input_flag_y)
 
             # Update numpy bm_flag_preds
             bm_flag_preds_npz = {}
@@ -216,7 +222,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 os.makedirs(bm_flag_preds_npz_path)
             
             bm_flag_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', f'bm_{flag}_preds.npz')
-            np.savez(bm_flag_preds_npz_path, **bm_flag_preds_npz)
+            with open(bm_flag_preds_npz_path, 'wb') as f:
+                np.save(f, **bm_flag_preds_npz)
 
         total_loss = np.average(total_loss)
         self.model.train()
@@ -295,9 +302,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         # print("enter with cuda amp")
                         if self.args.output_attention:
-                            # print("enter if")
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
                             # Outputs for every models
                             for models_idx in range(self.args.n_learner):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
@@ -306,10 +310,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                                 # TODO: Implementasi 'M'
                                 bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
-                        else:
-                            # print("enter else")
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
+                            # For Mantra
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        else:
                             # Outputs for every models
                             for models_idx in range(self.args.n_learner):
                                 outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
@@ -319,6 +323,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                                 # TODO: Implementasi 'M'
                                 bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
 
+                            # For Mantra
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                         loss = criterion(outputs, batch_y)
@@ -326,9 +333,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 else:
                     # print("enter without cuda amp")
                     if self.args.output_attention:
-                        # print("enter if")
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        
                         # Outputs for every models
                         for models_idx in range(self.args.n_learner):
                             outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
@@ -337,18 +341,20 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
                             # TODO: Implementasi 'M'
                             bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
-                    else:
-                        # print("enter else")
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                         
+                        # For Mantra
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                    else:
                         # Outputs for every models
-                            for models_idx in range(self.args.n_learner):
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+                        for models_idx in range(self.args.n_learner):
+                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
-                                # Save bm_train_preds
-                                # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
-                                # TODO: Implementasi 'M'
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
+                            # Save bm_train_preds
+                            # Nanti diganti untuk implementasi 'M' (sementara 'MS' dan 'S')
+                            # TODO: Implementasi 'M'
+                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, -1].detach().cpu().numpy())
+                        # For Mantra
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -562,8 +568,10 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         if not os.path.exists(self.args.checkpoints + '/' + setting + '/dataset/'):
             os.makedirs(self.args.checkpoints + '/' + setting + '/dataset/')
 
-        np.save(self.args.checkpoints + '/' + setting + '/dataset/'  'input_train_x.npy', np_input_train_x)
-        np.save(self.args.checkpoints + '/' + setting + '/dataset/' + 'input_train_y.npy', np_input_train_y)
+        with open(self.args.checkpoints + '/' + setting + '/dataset/'  'input_train_x.npy', 'wb') as f:
+            np.save(f, np_input_train_x)
+        with open(self.args.checkpoints + '/' + setting + '/dataset/' + 'input_train_y.npy', 'wb') as f:
+            np.save(f, np_input_train_y)
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
@@ -578,7 +586,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             os.makedirs(bm_train_preds_npz_path)
             
         bm_train_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')
-        np.savez(bm_train_preds_npz_path, **bm_train_preds_npz)
+        with open(bm_train_preds_npz_path, 'wb') as f:
+            np.save(f, **bm_train_preds_npz)
 
         return self.model
 
@@ -690,9 +699,12 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             f.write('\n')
             f.write('\n')
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
+        with open(folder_path + 'metrics.npy', 'wb') as f:
+            np.save(f, np.array([mae, mse, rmse, mape, mspe]))
+        with open(folder_path + 'pred.npy', 'wb') as f:
+            np.save(f, preds)
+        with open(folder_path + 'true.npy', 'wb') as f:
+            np.save(f, trues)
 
         # for i in range(0, self.args.n_learner):
         #     print("Test learner: "+str(i)+" ", end="")
