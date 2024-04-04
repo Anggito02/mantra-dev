@@ -223,7 +223,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             
             bm_flag_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', f'bm_{flag}_preds.npz')
             with open(bm_flag_preds_npz_path, 'wb') as f:
-                np.save(f, **bm_flag_preds_npz)
+                np.savez(f, **bm_flag_preds_npz)
 
         total_loss = np.average(total_loss)
         self.model.train()
@@ -587,7 +587,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             
         bm_train_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')
         with open(bm_train_preds_npz_path, 'wb') as f:
-            np.save(f, **bm_train_preds_npz)
+            np.savez(f, **bm_train_preds_npz)
 
         return self.model
 
