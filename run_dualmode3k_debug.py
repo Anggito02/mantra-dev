@@ -23,7 +23,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='test_RL', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='ILI_RL_36_24', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -78,7 +78,7 @@ def main():
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate')
     parser.add_argument('--anomaly', type=float, default=10.0, help='anomaly limit')
-    parser.add_argument('--des', type=str, default='test', help='exp description')
+    parser.add_argument('--des', type=str, default='Test', help='exp description')
     parser.add_argument('--loss', type=str, default='neg_corr', help='loss function')
     parser.add_argument('--corr_penalty', type=float, default=0.5, help='correlation penalty for negative correlation loss function')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
@@ -93,19 +93,19 @@ def main():
 
     # RL
     parser.add_argument('--rl_seed', default=42, type=int)
-    parser.add_argument('--use_weight',   action='store_true', default=True)
-    parser.add_argument('--use_td',       action='store_false', default=True)
-    parser.add_argument('--use_extra',    action='store_false', default=True)
-    parser.add_argument('--use_pretrain', action='store_false', default=True)
+    parser.add_argument('--use_weight',   default=1, type=int)
+    parser.add_argument('--use_td',       default=1, type=int)
+    parser.add_argument('--use_extra',    default=1, type=int)
+    parser.add_argument('--use_pretrain', default=1, type=int)
 
     parser.add_argument('--epsilon', default=0.3, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)
 
     parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
-    parser.add_argument('--RL_epochs', default=500, type=int, help='epoch for reinforcement learning')
-    parser.add_argument('--RL_warmup_epochs', default=200, type=int, help='warmup epoch for reinforcement learning')
-    parser.add_argument('--RL_pretrain_epochs', default=200, type=int, help='pretrain epoch for reinforcement learning')
-    parser.add_argument('--RL_step_size', default=4, type=int, help='step size for reinforcement learning')
+    parser.add_argument('--RL_epochs', default=1, type=int, help='epoch for reinforcement learning')
+    parser.add_argument('--RL_warmup_epoch', default=100, type=int, help='warmup epoch for reinforcement learning')
+    parser.add_argument('--RL_pretrain_epoch', default=200, type=int, help='pretrain epoch for reinforcement learning')
+    parser.add_argument('--RL_step_size', default=450, type=int, help='step size for reinforcement learning')
     parser.add_argument('--RL_max_patience', default=5, type=int, help='max patience for reinforcement learning')
 
     parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
@@ -182,14 +182,14 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # exp.train(setting)
+            exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)
 
-            # Not using test before URT Layers
-            # print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # exp.test(setting)
+            # Testing only Mantra
+            print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            exp.test(setting)
 
             # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             # opt.test2(setting)
@@ -201,7 +201,7 @@ def main():
             # RL Experiment
             rl_exp = OPT_RL_Mantra(args, setting)
             print(">>>>>>>RL_Train: {}>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>".format(setting))
-            rl_exp.forward()
+            rl_exp.forward(setting)
 
             del exp
             del rl_exp
