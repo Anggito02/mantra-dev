@@ -241,7 +241,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             os.makedirs(path)
 
         # train result path
-        result_path = os.path.join(self.args.checkpoints, setting, 'train_results', 'mantra')
+        result_path = self.args.checkpoints + setting + '/train_results/mantra/'
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
