@@ -23,7 +23,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='ILI_RL_36_24', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='tes', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -33,7 +33,7 @@ def main():
     parser.add_argument('--data', type=str, required=False, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/illness', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='national_illness.csv', help='data file')
-    parser.add_argument('--features', type=str, default='M',
+    parser.add_argument('--features', type=str, default='S',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
@@ -48,9 +48,9 @@ def main():
     # model define
     parser.add_argument('--bucket_size', type=int, default=4, help='for Reformer')
     parser.add_argument('--n_hashes', type=int, default=4, help='for Reformer')
-    parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
-    parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
-    parser.add_argument('--c_out', type=int, default=7, help='output size')
+    parser.add_argument('--enc_in', type=int, default=1, help='encoder input size')
+    parser.add_argument('--dec_in', type=int, default=1, help='decoder input size')
+    parser.add_argument('--c_out', type=int, default=1, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_learner', type=int, default=3, help='number of learner')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
@@ -98,7 +98,7 @@ def main():
     parser.add_argument('--use_extra',    default=1, type=int)
     parser.add_argument('--use_pretrain', default=1, type=int)
 
-    parser.add_argument('--epsilon', default=0.3, type=float)
+    parser.add_argument('--epsilon', default=0.5, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)
 
     parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
@@ -110,7 +110,7 @@ def main():
 
     parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
     parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
-    parser.add_argument('--hidden_dim', default=128, type=int, help='hidden dimension for RL CNN')
+    parser.add_argument('--hidden_dim', default=256, type=int, help='hidden dimension for RL CNN')
 
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 
