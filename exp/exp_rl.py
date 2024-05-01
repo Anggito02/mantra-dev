@@ -68,7 +68,7 @@ class OPT_RL_Mantra(Exp_Basic):
             batch_buffer_df = pd.read_csv(f'{self.BUFFER_PATH}/batch_buffer.csv', index_col=0)
         
         q_mape = [batch_buffer_df['mape'].quantile(0.1*i) for i in range(1, 10)]
-        # q_mae = [batch_buffer_df['mae'].quantile(0.1*i) for i in range(1, 10)]
+        q_mae = [batch_buffer_df['mae'].quantile(0.1*i) for i in range(1, 10)]
 
         if self.args.use_td:
             batch_buffer_df = batch_buffer_df.query(f'state_idx < {L}')
@@ -111,7 +111,7 @@ class OPT_RL_Mantra(Exp_Basic):
             shuffle_idxes   = np.random.randint(0, L, 300)
             sampled_states  = states[shuffle_idxes] 
             sampled_actions = agent.select_action(sampled_states)
-            sampled_rewards, _ = get_batch_reward(env, shuffle_idxes, sampled_actions, q_mape)
+            sampled_rewards, _ = get_batch_reward(env, shuffle_idxes, sampled_actions, q_mape, q_mae)
 
             for i in range(len(sampled_states)):
                 replay_buffer.add(shuffle_idxes[i], sampled_actions[i], sampled_rewards[i])
@@ -121,6 +121,7 @@ class OPT_RL_Mantra(Exp_Basic):
         step_size = self.args.RL_step_size
         step_num  = int(np.ceil(L / step_size))
         best_mse_loss = np.inf
+        best_mae_loss = np.inf
         patience, max_patience = 0, self.args.RL_max_patience
         epsilon = self.args.epsilon
 
@@ -136,7 +137,7 @@ class OPT_RL_Mantra(Exp_Basic):
                     batch_actions = sparse_explore(batch_states, act_dim)
                 else:
                     batch_actions = agent.select_action(batch_states)
-                batch_rewards, batch_mae = get_batch_reward(env, batch_idx, batch_actions, q_mape)
+                batch_rewards, _ = get_batch_reward(env, batch_idx, batch_actions, q_mape, q_mae)
                 
                 for j in range(len(batch_idx)):
                     replay_buffer.add(batch_idx[j], batch_actions[j], batch_rewards[j])
@@ -189,8 +190,8 @@ class OPT_RL_Mantra(Exp_Basic):
                 f'target_q: {np.average(target_q_lst):.5f}\n\n')
             log_file.close()        
             
-            if valid_mse_loss < best_mse_loss:
-                best_mse_loss = valid_mse_loss
+            if valid_mae_loss < best_mae_loss:
+                best_mae_loss = valid_mae_loss
                 patience = 0
                 # save best model
                 for param, target_param in zip(agent.actor.parameters(), best_actor.parameters()):
