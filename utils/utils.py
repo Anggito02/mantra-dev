@@ -188,7 +188,7 @@ def get_batch_reward(env, idxes, actions, q_mape, q_mae=None):
     rewards = []
     mae_lst = []
     for i in range(len(idxes)):
-        rank, new_mape, new_mae, new_mse = env.reward_func(idxes[i], actions[i])
+        rank, new_mape, new_mae = env.reward_func(idxes[i], actions[i])
         rank_reward = get_rank_reward(rank, 1)
         # mape_reward = get_mape_reward(q_mape, new_mape, 1)
         mae_reward  = get_mae_reward(q_mae, new_mae)
