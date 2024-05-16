@@ -164,36 +164,41 @@ def plot_best_data(train_error, valid_error, test_error):
 
 # mape reward computed by the quantile
 def get_mape_reward(q_mape, mape, R=1):
-    q = 0
-    while (q < 9) and (mape > q_mape[q]):
-        q += 1
-    reward = -R + 2*R*(9 - q)/9
-    return reward
+        q = 0
+        while (q < 9) and (mape > q_mape[q]):
+            q += 1
+        reward = -R + 2*R*(9 - q)/9
+        return reward
 
-
-# mae reward computed by the quantile
-def get_mae_reward(q_mae, mae):
+def get_mae_reward(q_mae, mae, R=1):
     q = 0
     while (q < 9) and (mae > q_mae[q]):
         q += 1
-    reward = 1 - 2 * q / 9
+    reward = -R + 2*R*(9 - q)/9
+    return reward
+    
+def get_mse_reward(q_mse, mse, R=1):
+    q = 0
+    while (q < 9) and (mse > q_mse[q]):
+        q += 1
+    reward = -R + 2*R*(9 - q)/9
+    return reward
+    
+def get_rank_reward(rank, R=1):
+    reward = -R + 2*R*(9 - rank)/9
     return reward
 
-# rank reward
-def get_rank_reward(rank, R=1):
-        reward = -R + 2*R*(9 - rank)/9
-        return reward
-
-def get_batch_reward(env, idxes, actions, q_mape, q_mae=None):
+def get_batch_reward(env, idxes, actions, q_mape, q_mae, q_mse):
     rewards = []
     mae_lst = []
     for i in range(len(idxes)):
-        rank, new_mape, new_mae = env.reward_func(idxes[i], actions[i])
+        rank, new_mape, new_mae, new_mse = env.reward_func(idxes[i], actions[i])
         rank_reward = get_rank_reward(rank, 1)
-        # mape_reward = get_mape_reward(q_mape, new_mape, 1)
-        mae_reward  = get_mae_reward(q_mae, new_mae)
+        mape_reward = get_mape_reward(q_mape, new_mape, 1)
+        mae_reward  = get_mae_reward(q_mae, new_mae, 1)
+        mse_reward = get_mse_reward(q_mse, new_mse, 1)
         
-        combined_reward = mae_reward + rank_reward # + mape_reward
+        combined_reward = mse_reward + rank_reward # + mape_reward
         mae_lst.append(new_mae)
         rewards.append(combined_reward)
     return rewards, mae_lst
