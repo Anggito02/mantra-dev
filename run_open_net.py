@@ -1,7 +1,7 @@
 import argparse
 import os
 import torch
-from exp.exp_main_3k_updated import Exp_Main_DualmodE3K
+from exp.exp_open_net import Exp_Main_DualmodE3K
 # from exp.opt_urt import Opt_URT
 
 from exp.exp_rl import OPT_RL_Mantra
@@ -23,7 +23,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='ILI_RL_36_24', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='test', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -33,7 +33,7 @@ def main():
     parser.add_argument('--data', type=str, required=False, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/illness', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='national_illness.csv', help='data file')
-    parser.add_argument('--features', type=str, default='MS',
+    parser.add_argument('--features', type=str, default='S',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
@@ -93,24 +93,24 @@ def main():
 
     # RL
     parser.add_argument('--rl_seed', default=42, type=int)
-    parser.add_argument('--use_weight',   default=1, type=int)
+    parser.add_argument('--use_weight',   default=0, type=int)
     parser.add_argument('--use_td',       default=1, type=int)
     parser.add_argument('--use_extra',    default=1, type=int)
     parser.add_argument('--use_pretrain', default=1, type=int)
 
-    parser.add_argument('--epsilon', default=0.3, type=float)
+    parser.add_argument('--epsilon', default=1, type=float)
     parser.add_argument('--exp_name', default='rlmc', type=str)
 
-    parser.add_argument('--learn_rate_RL', default=3e-4, type=float, help='learning rate for reinforcement learning')
-    parser.add_argument('--RL_epochs', default=1, type=int, help='epoch for reinforcement learning')
+    parser.add_argument('--learn_rate_RL', default=0.001, type=float, help='learning rate for reinforcement learning')
+    parser.add_argument('--RL_epochs', default=500, type=int, help='epoch for reinforcement learning')
     parser.add_argument('--RL_warmup_epoch', default=100, type=int, help='warmup epoch for reinforcement learning')
     parser.add_argument('--RL_pretrain_epoch', default=200, type=int, help='pretrain epoch for reinforcement learning')
-    parser.add_argument('--RL_step_size', default=450, type=int, help='step size for reinforcement learning')
+    parser.add_argument('--RL_step_size', default=4, type=int, help='step size for reinforcement learning')
     parser.add_argument('--RL_max_patience', default=5, type=int, help='max patience for reinforcement learning')
 
     parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
     parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
-    parser.add_argument('--hidden_dim', default=128, type=int, help='hidden dimension for RL CNN')
+    parser.add_argument('--hidden_dim', default=256, type=int, help='hidden dimension for RL CNN')
 
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 
@@ -191,6 +191,13 @@ def main():
             print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)
 
+            gc.collect()
+            torch.cuda.empty_cache()
+
+            # RL Experiment
+            print('>>>>>>>train RL : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            exp.train_rl(setting)
+
             # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             # opt.test2(setting)
 
@@ -198,17 +205,9 @@ def main():
             #     print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             #     exp.predict(setting, True)
 
-            # RL Experiment
-            rl_exp = OPT_RL_Mantra(args, setting)
-            print(">>>>>>>RL_Train: {}>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>".format(setting))
-            rl_exp.forward(setting)
-
             del exp
-            del rl_exp
             gc.collect()
-            
             torch.cuda.empty_cache()
-
 
         # OptRL = OPT_RL_Mantra(args)
         # for ii in range(args.itr):
