@@ -4,10 +4,13 @@ import torch
 from exp.exp_open_net import Exp_Main_DualmodE3K
 from exp.opt_urt import Opt_URT
 
+import warnings
 import random
 import numpy as np
 
 import gc
+
+warnings.filterwarnings('ignore')
 
 def main():    
     parser = argparse.ArgumentParser(description='iTransformer for Time Series Forecasting')
