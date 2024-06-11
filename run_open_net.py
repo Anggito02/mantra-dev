@@ -2,23 +2,14 @@ import argparse
 import os
 import torch
 from exp.exp_open_net import Exp_Main_DualmodE3K
-# from exp.opt_urt import Opt_URT
+from exp.opt_urt import Opt_URT
 
-from exp.exp_rl import OPT_RL_Mantra
 import random
 import numpy as np
 
 import gc
 
-def main():
-    # fix_seed = 2021
-    # random.seed(fix_seed)
-    # torch.manual_seed(fix_seed)
-    # np.random.seed(fix_seed)
-    # torch.cuda.manual_seed(fix_seed)
-    # torch.backends.cudnn.deterministic = True
-    # os.environ['PYTHONHASHSEED'] = str(fix_seed)
-    
+def main():    
     parser = argparse.ArgumentParser(description='iTransformer for Time Series Forecasting')
 
     # basic config
@@ -33,7 +24,7 @@ def main():
     parser.add_argument('--data', type=str, required=False, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/illness', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='national_illness.csv', help='data file')
-    parser.add_argument('--features', type=str, default='S',
+    parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
@@ -91,27 +82,6 @@ def main():
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
     parser.add_argument('--fix_seed', type=str, default='2021,2022,2023', help='Fix seed for iterations')
 
-    # RL
-    parser.add_argument('--rl_seed', default=42, type=int)
-    parser.add_argument('--use_weight',   default=0, type=int)
-    parser.add_argument('--use_td',       default=1, type=int)
-    parser.add_argument('--use_extra',    default=1, type=int)
-    parser.add_argument('--use_pretrain', default=1, type=int)
-
-    parser.add_argument('--epsilon', default=1, type=float)
-    parser.add_argument('--exp_name', default='rlmc', type=str)
-
-    parser.add_argument('--learn_rate_RL', default=0.001, type=float, help='learning rate for reinforcement learning')
-    parser.add_argument('--RL_epochs', default=500, type=int, help='epoch for reinforcement learning')
-    parser.add_argument('--RL_warmup_epoch', default=100, type=int, help='warmup epoch for reinforcement learning')
-    parser.add_argument('--RL_pretrain_epoch', default=200, type=int, help='pretrain epoch for reinforcement learning')
-    parser.add_argument('--RL_step_size', default=4, type=int, help='step size for reinforcement learning')
-    parser.add_argument('--RL_max_patience', default=5, type=int, help='max patience for reinforcement learning')
-
-    parser.add_argument('--gamma', default=0.99, type=float, help='discount factor')
-    parser.add_argument('--tau', default=0.005, type=float, help='soft update rate')
-    parser.add_argument('--hidden_dim', default=256, type=int, help='hidden dimension for RL CNN')
-
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 
 
@@ -160,7 +130,7 @@ def main():
             os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
 
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
                 args.model_id,
                 args.model,
                 args.data,
@@ -169,14 +139,9 @@ def main():
                 args.label_len,
                 args.pred_len,
                 args.d_model,
-                args.n_heads,
                 args.e_layers,
                 args.d_layers,
-                args.d_ff,
-                args.factor,
-                args.embed,
-                args.distil,
-                args.des, ii)
+                args.des)
 
             exp = Exp(args)  # set experiments
             # opt = OptURT(args)  # set experiments
@@ -195,8 +160,8 @@ def main():
             torch.cuda.empty_cache()
 
             # RL Experiment
-            print('>>>>>>>train RL : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.train_rl(setting)
+            # print('>>>>>>>train RL : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            # exp.train_rl(setting)
 
             # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             # opt.test2(setting)
@@ -211,8 +176,33 @@ def main():
 
         # OptRL = OPT_RL_Mantra(args)
         # for ii in range(args.itr):
+        OptURT = Opt_URT
+
+        for ii in range(args.itr):
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
+                args.model_id,
+                args.model,
+                args.data,
+                args.features,
+                args.seq_len,
+                args.label_len,
+                args.pred_len,
+                args.d_model,
+                args.e_layers,
+                args.d_layers,
+                args.des)
             
-        #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+            opt = OptURT(args)  # set experiments
+
+            print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+            opt.train_urt(setting)
+
+            print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            opt.test2(setting)
+
+            gc.collect()
+            torch.cuda.empty_cache()
+        #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
         #         args.model_id,
         #         args.model,
         #         args.data,
@@ -221,14 +211,9 @@ def main():
         #         args.label_len,
         #         args.pred_len,
         #         args.d_model,
-        #         args.n_heads,
         #         args.e_layers,
         #         args.d_layers,
-        #         args.d_ff,
-        #         args.factor,
-        #         args.embed,
-        #         args.distil,
-        #         args.des, ii)
+        #         args.des)
 
         #     # exp = Exp(args)  # set experiments
         #     # opt = OptURT(args)  # set experiments
@@ -242,7 +227,7 @@ def main():
         #     torch.cuda.empty_cache()
     else:
         ii = 0
-        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,
+        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}_{}'.format(args.model_id,
                                                                                                       args.model,
                                                                                                       args.data,
                                                                                                       args.features,
@@ -250,13 +235,8 @@ def main():
                                                                                                       args.label_len,
                                                                                                       args.pred_len,
                                                                                                       args.d_model,
-                                                                                                      args.n_heads,
                                                                                                       args.e_layers,
                                                                                                       args.d_layers,
-                                                                                                      args.d_ff,
-                                                                                                      args.factor,
-                                                                                                      args.embed,
-                                                                                                      args.distil,
                                                                                                       args.des, ii)
 
         exp = Exp(args)  # set experiments

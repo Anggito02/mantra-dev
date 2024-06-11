@@ -1054,3 +1054,18 @@ mse:3.11647629737854, mae:1.2262632846832275
 ili_E3k_MSE_36_24_B6autoformer_custom_ftM_sl36_ll18_pl24_dm256_nh8_el2_dl1_df2048_fc3_ebtimeF_dtTrue_Exp_2  
 mse:3.1663835048675537, mae:1.1892637014389038
 
+test_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_nh8_el2_dl1_df2048_fc1_ebtimeF_dtTrue_Exp_0  
+mse:2.8817460536956787, mae:1.0633046627044678
+
+ILI_36_24_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_normal  
+mse:2.8419430255889893, mae:1.0300869941711426
+
+ILI_36_36_B6iFast_custom_ftM_sl36_ll18_pl36_dm512_el2_dl1_normal  
+mse:2.5777506828308105, mae:1.06576669216156
+
+ILI_36_48_B6iFast_custom_ftM_sl36_ll18_pl48_dm512_el2_dl1_normal  
+mse:2.299337148666382, mae:0.9866613745689392
+
+ILI_36_60_B6iFast_custom_ftM_sl36_ll18_pl60_dm512_el2_dl1_normal  
+mse:2.404381513595581, mae:1.0289336442947388
+

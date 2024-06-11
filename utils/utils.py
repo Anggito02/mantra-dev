@@ -2,19 +2,15 @@ import torch
 
 import numpy as np
 import pandas as pd
-import math
 from tqdm import trange
 from collections import Counter
 
 from sktime.performance_metrics.forecasting import \
     mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
 
-def get_state_weight(train_error):
-    L = len(train_error)
-    best_model = train_error.argmin(1)
-    best_model_counter = Counter(best_model)
-    model_weight = {k:v/L for k,v in best_model_counter.items()}
-    return model_weight
+DATA_DIR = 'dataset'
+# SCALE_MEAN, SCALE_STD = np.load(f'{DATA_DIR}/scaler.npy')
+# def inv_trans(x): return x * SCALE_STD + SCALE_MEAN
 
 def get_model_info(error_array):
     model_rank = np.zeros_like(error_array)
@@ -23,14 +19,31 @@ def get_model_info(error_array):
     model_rank[0]  = sort_res[-1]
     return model_rank
 
+def MAE(pred, true):
+    return np.mean(np.abs(pred - true))
+
+
+def MSE(pred, true):
+    return np.mean((pred - true) ** 2)
+
+
+def RMSE(pred, true):
+    return np.sqrt(MSE(pred, true))
+
+
+def MAPE(pred, true):
+    return np.mean(np.abs((pred - true) / true))
+
+def MSPE(pred, true):
+    return np.mean(np.square((pred - true) / true))
 
 def compute_mape_error(y, bm_preds):
     mape_loss_df = pd.DataFrame()
-    for i in trange(bm_preds.shape[1], desc='[Compute Error]'):
+    for i in trange(bm_preds.shape[1], desc='[Compute Error]'):     # Compute learner dari tiap learner pakai iterasi dimensi ke 1
         model_mape_loss = [mean_absolute_percentage_error(
             y[j], bm_preds[j, i, :],
             symmetric=True) for j in range(len(y))]
-        mape_loss_df[i] = model_mape_loss
+        mape_loss_df[i] = model_mape_loss                           # Simpan mape error dari tiap learner di mape_loss_df
     return mape_loss_df
 
 
@@ -43,24 +56,22 @@ def compute_mae_error(y, bm_preds):
         loss_df[i] = model_mae_loss
     return loss_df
 
-def sparse_explore(obs, act_dim):
-    N = len(obs)
-    x = np.zeros((N, act_dim))
-    randn_idx = np.random.randint(0, act_dim, size=(N,))
-    x[np.arange(N), randn_idx] = 1
+def compute_mse_error(y, bm_preds):
+    loss_df = pd.DataFrame()
+    for i in trange(bm_preds.shape[1], desc='[Compute Error]'):
+        model_mse_loss = [mean_squared_error(
+            y[j], bm_preds[j, i, :],
+            symmetric=True) for j in range(len(y))]
+        loss_df[i] = model_mse_loss
+    return loss_df
 
-    # disturb from the vertex
-    delta = np.random.uniform(0.02, 0.1, size=(N, 1))
-    x[np.arange(N), randn_idx] -= delta.squeeze()
-
-    # noise
-    noise = np.abs(np.random.randn(N, act_dim))
-    noise[np.arange(N), randn_idx] = 0
-    noise /= noise.sum(1, keepdims=True)
-    noise = delta * noise
-    sparse_action = x + noise
-
-    return sparse_action
+def compute_mse_error_new(y, bm_preds):
+    loss_df = pd.DataFrame()
+    for i in trange(bm_preds.shape[1], desc='[Compute Error]'):
+        model_mse_loss = [MSE(
+            y[j], bm_preds[j, i, :]) for j in range(len(y))]
+        loss_df[i] = model_mse_loss
+    return loss_df
 
 def unify_input_data(data_path):
     train_x = np.load(f'{data_path}/dataset/input_train_x.npy')    
@@ -103,6 +114,60 @@ def unify_input_data(data_path):
     train_error_df = compute_mape_error(train_y, train_preds_merge_data)
     valid_error_df = compute_mape_error(vali_y, valid_preds_merge_data)
     test_error_df  = compute_mape_error(test_y , test_preds_merge_data)
+
+    np.savez(f'{data_path}/dataset/input_rl.npz',
+             train_X=train_x,
+             valid_X=vali_x,
+             test_X=test_x,
+             train_y=train_y,
+             valid_y=vali_y,
+             test_y=test_y,
+             train_error=train_error_df,
+             valid_error=valid_error_df,
+             test_error=test_error_df
+            )
+
+def unify_input_data_new(data_path):
+    train_x = np.load(f'{data_path}/dataset/input_train_x.npy')    
+    train_y = np.load(f'{data_path}/dataset/input_train_y.npy')
+    vali_x  = np.load(f'{data_path}/dataset/input_vali_x.npy')
+    vali_y  = np.load(f'{data_path}/dataset/input_vali_y.npy')
+    test_x  = np.load(f'{data_path}/dataset/input_test_x.npy')
+    test_y  = np.load(f'{data_path}/dataset/input_test_y.npy')
+
+    # predictions
+    merge_data = []
+    train_preds_npz = np.load(f'{data_path}/rl_bm/bm_train_preds.npz')
+    for model_name in train_preds_npz.keys():
+        train_preds = train_preds_npz[model_name]
+        train_preds = np.expand_dims(train_preds, axis=1)
+        merge_data.append(train_preds)
+    train_preds_merge_data = np.concatenate(merge_data, axis=1)
+
+    merge_data = []
+    valid_preds_npz = np.load(f'{data_path}/rl_bm/bm_vali_preds.npz')
+    for model_name in valid_preds_npz.keys():
+        valid_preds = valid_preds_npz[model_name]
+        valid_preds = np.expand_dims(valid_preds, axis=1)
+        merge_data.append(valid_preds)
+    valid_preds_merge_data = np.concatenate(merge_data, axis=1)
+
+    merge_data = []
+    test_preds_npz = np.load(f'{data_path}/rl_bm/bm_test_preds.npz')
+    for model_name in test_preds_npz.keys():
+        test_preds = test_preds_npz[model_name]
+        test_preds = np.expand_dims(test_preds, axis=1)
+        merge_data.append(test_preds)
+    test_preds_merge_data = np.concatenate(merge_data, axis=1)
+    
+    # save preds
+    np.save(f'{data_path}/rl_bm/bm_train_preds.npy', train_preds_merge_data)
+    np.save(f'{data_path}/rl_bm/bm_vali_preds.npy', valid_preds_merge_data)
+    np.save(f'{data_path}/rl_bm/bm_test_preds.npy', test_preds_merge_data)
+
+    train_error_df = compute_mse_error_new(train_y, train_preds_merge_data)
+    valid_error_df = compute_mse_error_new(vali_y, valid_preds_merge_data)
+    test_error_df  = compute_mse_error_new(test_y , test_preds_merge_data)
 
     np.savez(f'{data_path}/dataset/input_rl.npz',
              train_X=train_x,
@@ -212,11 +277,11 @@ def evaluate_agent(agent, test_states, test_bm_preds, test_y):
     act_counter = Counter(weights.argmax(1))
     act_sorted  = sorted([(k, v) for k, v in act_counter.items()])
 
-    weights = np.expand_dims(weights, -1)  # (2816, 9, 1)                                                                                   # 1536, 7, 1
+    weights = np.expand_dims(np.expand_dims(weights, -1), -1)  # (2816, 9, 1)                                                                                   # 1536, 7, 1
     weighted_y = weights * test_bm_preds  # (2816, 9, 24)
     weighted_y = weighted_y.sum(1)  # (2816, 24)
 
-    mse_loss = mean_squared_error(test_y, weighted_y)
-    mae_loss = mean_absolute_error(test_y, weighted_y)
-    mape_loss = mean_absolute_percentage_error(test_y, weighted_y)
+    mse_loss = MSE(test_y, weighted_y)
+    mae_loss = MAE(test_y, weighted_y)
+    mape_loss = MAPE(test_y, weighted_y)
     return mse_loss, mae_loss, mape_loss, act_sorted, weighted_y, test_y
