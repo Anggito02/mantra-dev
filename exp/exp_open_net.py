@@ -378,135 +378,59 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                         model_optim.step()
                         # slow_model_optim.step()
 
-                # FIXME: Implementasi Slow model
-                # loss = 0
-                # s0,s1,s2 = batch_x.shape
-                # randuniform = torch.empty(s0,s1,s2).uniform_(0, 1)
-                # m_ones = torch.ones(s0,s1,s2).cuda()
-                # slow_mark = torch.bernoulli(randuniform).cuda()
-                # batch_x_slow = torch.clone(batch_x)
-                # batch_x_slow = batch_x_slow * (m_ones-slow_mark)
-                
-                #Update for slow model
-                # loss = 0
-                # s0,s1,s2 = batch_x.shape
-                # slow_mark = torch.zeros(s0,s1,s2).cuda()
-                # # slow_mark = torch.zeros(s1).cuda()
-                # batch_x_slow = torch.clone(batch_x)
-                # for c in range(0,self.args.n_learner):
-                #     # idx = self.model.decoder[c].layers[self.args.d_layers-1].self_attention.inner_correlation.top_k_index
-                #     idx = self.model.encoder[c].attn_layers[0].attention.inner_correlation.top_k_index
-                #     # slow_mark[idx] = 1
-                #     slow_mark[:,idx,:] = 1
-                #     batch_x_slow[:,idx,:] = 0
-
-                # loss = 0
-                # s0,s1,s2 = batch_x.shape
-                # slow_mark = torch.zeros(s0,s1,s2).cuda()
-                # batch_x_slow = torch.clone(batch_x)
-                # c = random.randint(0,self.args.n_learner-1)
-                # idx = self.model.encoder[c].attn_layers[0].attention.inner_correlation.top_k_index
-                # slow_mark[:,idx,:] = 1
-                # batch_x_slow[:,idx,:] = 0
-                
-                # for s in range(0,s1):
-                #     if slow_mark[s] == 1:
-                #         batch_x_slow[:,s,:] = 0
-                
-                # minS1 = min(self.args.label_len, self.args.pred_len)
-                # dec_inp = torch.zeros_like(batch_y[:, -minS1:, :]).float()
-                # dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-
-                # if self.args.seq_len < self.args.pred_len:
-                #     dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
-                # else:
-                #     dec_inp = torch.zeros_like(batch_x).float()
-                #     # batch_y_mark = torch.cat((batch_y_mark,batch_y_mark),dim=1)
-                #     d0,d1,d2 = batch_y_mark.shape
-                #     # d1=self.args.seq_len * 2
-                #     batch_y_mark2 = torch.empty(d0,d1,d2).uniform_(-1, 1).float().cuda()
-                #     # print(batch_y_mark)
-                #     batch_y_mark = torch.cat((batch_y_mark,batch_y_mark2),dim=1)
-
-                # # dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
-                # dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-
-                # if self.args.output_attention:
-                #     # print("enter if")
-                #     # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)[0]
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
-                #     slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
+                # introduce randomness for slow model batch_x
+                # purpose:
+                #   1. data augmentation (data training tambahan untuk training): add noise
+                #   2. regularization: menghindari overfitting (tidak terlalu bergantung pada salah satu elemen)
+                #   3. simulating noisy condition: digunakan agar model tetap bekerja dengan baik, meskipun ada noise
+                if (self.args.use_slow_learner):
+                    loss = 0
+                    s0,s1,s2 = batch_x.shape
+                    randuniform = torch.empty(s0,s1,s2).uniform_(0, 1)
+                    m_ones = torch.ones(s0,s1,s2).cuda()
+                    slow_mark = torch.bernoulli(randuniform).cuda()
+                    batch_x_slow = torch.clone(batch_x)
+                    batch_x_slow = batch_x_slow * (m_ones-slow_mark)
                     
-                #     # # print("check fast and slow output:")
-                #     # print(fast_outputs.shape)
-                #     # print(slow_out.shape)
-                #     # print(fast_outputs.shape)
-                #     # for nl in range(0,fast_outputs.shape[0]):
-                #     #     fast_output_nl = fast_outputs[nl]
-                #     #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
-                #     #     # print(slow_out.shape)
+                    # decoder input
+                    if self.args.seq_len < self.args.pred_len:
+                        dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
+                    else:
+                        dec_inp = torch.zeros_like(batch_x).float()
+                        # batch_y_mark = torch.cat((batch_y_mark,batch_y_mark),dim=1)
+                        d0,d1,d2 = batch_y_mark.shape
+                        # d1=self.args.seq_len * 2
+                        batch_y_mark2 = torch.empty(d0,d1,d2).uniform_(-1, 1).float().cuda()
+                        # print(batch_y_mark)
+                        batch_y_mark = torch.cat((batch_y_mark,batch_y_mark2),dim=1)
 
-                #     #     f_dim = -1 if self.args.features == 'MS' else 0
-                #     #     outputs = slow_out[:, -self.args.pred_len:, f_dim:]
-                #     #     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                #     #     loss += criterion(outputs, batch_y)
+                    # dec_inp = torch.zeros_like(batch_y[:, -self.args.seq_len:, :]).float()
+                    dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-
-                #         # slow_model_optim.zero_grad()
-                #         # if self.args.use_amp:
-                #         #     scaler.scale(loss).backward()
-                #         #     scaler.step(slow_model_optim)
-                #         #     scaler.update()
-                #         # else:
-                #         #     loss.backward()
-                #         #     slow_model_optim.step()
-
-                # else:
-                #     # print("enter else")
-                #     # fast_outputs = self.model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark)
-                #     # slow_out = self.slow_model.forward_for_slowlearner(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
-                #     slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
-                #     # print("check fast and slow output:")
-                #     # print(fast_outputs.shape)
-                #     # print(slow_out.shape)
-                #     # for nl in range(0,fast_outputs.shape[0]):
-                #     #     fast_output_nl = fast_outputs[nl]
-                #     #     slow_out = self.slow_model.forward_and_modulate(batch_x, batch_x_mark, dec_inp, batch_y_mark,fast_output=fast_output_nl)
-                #     #     # print(slow_out.shape)
+                    # forward slow model
+                    if self.args.output_attention:
+                        slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
+                    else:
+                        slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
 
 
-                # outputs = slow_out[:, -self.args.pred_len:, f_dim:]
-                # batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                # loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
+                    # compute slow loss
+                    f_dim = -1 if self.args.features == 'MS' else 0
+                    outputs = slow_out[:, -self.args.pred_len:, f_dim:]
+                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                    loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
 
-                # # loss += criterion(outputs, batch_y)
-                # # loss += ssl_loss(slow_out, batch_x_slow, slow_mark, s1, s2)
-                # # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
-                # # loss += ssl_loss(slow_out, batch_x, slow_mark, s1, s2)
-                # # loss += ssl_loss(slow_out, batch_x, batch_x_mark, s1, s2)
-                
-
-                # if(need_update):
-                #     slow_model_optim.zero_grad()
-                #     if self.args.use_amp:
-                #         scaler.scale(loss).backward()
-                #         scaler.step(slow_model_optim)
-                #         scaler.step(model_optim)
-                #         scaler.update()
-                #     else:
-                #         loss.backward()
-                #         slow_model_optim.step()
-                #         model_optim.step()
-
-                # print(fast_outputs.shape)
-                # print(outputs.shape)
-
-            # print(">>>>>>> Check after epoch >>>>>>>")
-            # self.model.check_params()
+                    if(need_update):
+                        slow_model_optim.zero_grad()
+                        if self.args.use_amp:
+                            scaler.scale(loss).backward()
+                            scaler.step(slow_model_optim)
+                            scaler.step(model_optim)
+                            scaler.update()
+                        else:
+                            loss.backward()
+                            slow_model_optim.step()
+                            model_optim.step()
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
