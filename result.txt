@@ -1093,3 +1093,27 @@ mse:2.247852325439453, mae:1.0283933877944946
 ILI_36_24_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_normal_0  
 mse:2.669093132019043, mae:1.0473793745040894
 
+ILI_36_36_B6iFast_custom_ftM_sl36_ll18_pl36_dm512_el2_dl1_normal_1  
+mse:2.247852325439453, mae:1.0283933877944946
+
+ILI_36_36_B6iFast_custom_ftM_sl36_ll18_pl36_dm512_el2_dl1_normal_2  
+mse:2.247852325439453, mae:1.0283933877944946
+
+ILI_36_48_B6iFast_custom_ftM_sl36_ll18_pl48_dm512_el2_dl1_normal_0  
+mse:2.315671682357788, mae:1.0003341436386108
+
+ILI_36_48_B6iFast_custom_ftM_sl36_ll18_pl48_dm512_el2_dl1_normal_1  
+mse:2.315671682357788, mae:1.0003341436386108
+
+ILI_36_48_B6iFast_custom_ftM_sl36_ll18_pl48_dm512_el2_dl1_normal_2  
+mse:2.315671682357788, mae:1.0003341436386108
+
+ILI_36_60_B6iFast_custom_ftM_sl36_ll18_pl60_dm512_el2_dl1_normal_0  
+mse:2.6158230304718018, mae:1.0590084791183472
+
+ILI_36_60_B6iFast_custom_ftM_sl36_ll18_pl60_dm512_el2_dl1_normal_1  
+mse:2.6158230304718018, mae:1.0590084791183472
+
+ILI_36_60_B6iFast_custom_ftM_sl36_ll18_pl60_dm512_el2_dl1_normal_2  
+mse:2.6158230304718018, mae:1.0590084791183472
+

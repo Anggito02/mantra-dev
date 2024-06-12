@@ -185,14 +185,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 total_loss.append(loss)
 
             # Save input vali and test
-            np_input_flag_x = input_flag_x[0]
-            np_input_flag_y = input_flag_y[0]
-
-            for i in range(1, len(input_flag_x)):
-                np_input_flag_x = np.append(np_input_flag_x, input_flag_x[i], axis=0)
-
-            for i in range(1, len(input_flag_y)):
-                np_input_flag_y = np.append(np_input_flag_y, input_flag_y[i], axis=0)    
+            np_input_flag_x = np.concatenate(input_flag_x, axis=0)
+            np_input_flag_y = np.concatenate(input_flag_y, axis=0)
 
             # np_input_flag_x = np.array(input_flag_x)
             # np_input_flag_x = np_input_flag_x.reshape(np_input_flag_x.shape[0]*np_input_flag_x.shape[1], np_input_flag_x.shape[2], np_input_flag_x.shape[3])
@@ -535,14 +529,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
         # Save input train
-        np_input_train_x = input_train_x[0]
-        np_input_train_y = input_train_y[0]
-
-        for i in range(1, len(input_train_x)):
-            np_input_train_x = np.append(np_input_train_x, input_train_x[i], axis=0)
-        
-        for i in range(1, len(input_train_y)):
-            np_input_train_y = np.append(np_input_train_y, input_train_y[i], axis=0)
+        np_input_train_x = np.concatenate(input_train_x, axis=0)
+        np_input_train_y = np.concatenate(input_train_y, axis=0)
 
         # np_input_train_x = np.array(input_train_x)
         # np_input_train_x = np_input_train_x.reshape(np_input_train_x.shape[0]*np_input_train_x.shape[1], np_input_train_x.shape[2], np_input_train_x.shape[3])
