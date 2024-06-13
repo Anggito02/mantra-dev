@@ -197,23 +197,48 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             if not os.path.exists(self.args.checkpoints + '/' + setting + '/dataset/'):
                 os.makedirs(self.args.checkpoints + '/' + setting + '/dataset/')
 
-            with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_x.npy', 'wb') as f:
-                np.save(f, np_input_flag_x)
-            with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_y.npy', 'wb') as f:
-                np.save(f, np_input_flag_y)
+            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy'):
+                with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_x.npy', 'wb') as f:
+                    np.save(f, np_input_flag_x)
+            else:
+                if flag == "vali":
+                    temp_np_input_flag_x = np.load(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy')
+                    np_input_flag_x = np.concatenate((temp_np_input_flag_x, np_input_flag_x), axis=0)
+                    np.save(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy', np_input_flag_x)
+            
+            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy'):
+                with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_y.npy', 'wb') as f:
+                    np.save(f, np_input_flag_y)
+            else:
+                if flag == "vali":
+                    temp_np_input_flag_y = np.load(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy')
+                    np_input_flag_y = np.concatenate((temp_np_input_flag_y, np_input_flag_y), axis=0)
+                    np.save(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy', np_input_flag_y)
 
             # Update numpy bm_flag_preds
-            bm_flag_preds_npz = {}
-            for models_idx in range(self.args.n_learner):
-                bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
-
             bm_flag_preds_npz_path = self.args.checkpoints + '/' + setting + '/' + 'rl_bm' + '/'
             if not os.path.exists(bm_flag_preds_npz_path):
                 os.makedirs(bm_flag_preds_npz_path)
             
-            bm_flag_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', f'bm_{flag}_preds.npz')
-            with open(bm_flag_preds_npz_path, 'wb') as f:
-                np.savez(f, **bm_flag_preds_npz)
+            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz'):
+                bm_flag_preds_npz = {}
+                for models_idx in range(self.args.n_learner):
+                    bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
+
+                with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
+                    np.savez(f, **bm_flag_preds_npz)
+            
+            else:
+                existing_bm_flag_preds_npz = np.load(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz')
+
+                bm_flag_preds_npz = {}
+                for models_idx in range(self.args.n_learner):
+                    existing_bm_flag_preds_npy = existing_bm_flag_preds_npz['Learner_' + str(models_idx)]
+                    temp_curr_bm_flag_preds_npy = np.concatenate(bm_flag_preds[models_idx], axis=0)
+                    bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate((existing_bm_flag_preds_npy, temp_curr_bm_flag_preds_npy), axis=0)
+
+                with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
+                    np.savez(f, **bm_flag_preds_npz)
 
         total_loss = np.average(total_loss)
         self.model.train()
