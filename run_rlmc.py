@@ -383,7 +383,7 @@ def run_rlmc(use_weight=True, use_td=True, use_extra=True, use_pretrain=True, ep
     best_mape_loss = np.inf
     best_mse_loss = np.inf
     best_mae_loss = np.inf
-    patience, max_patience = 0, 15
+    patience, max_patience = 0, 5
     for epoch in trange(500):
         t1 = time.time()
         q_loss_lst, pi_loss_lst, q_lst, target_q_lst  = [], [], [], []

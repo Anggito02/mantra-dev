@@ -219,8 +219,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
             bm_flag_preds_npz_path = self.args.checkpoints + '/' + setting + '/' + 'rl_bm' + '/'
             if not os.path.exists(bm_flag_preds_npz_path):
                 os.makedirs(bm_flag_preds_npz_path)
-            
-            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz'):
+
+            if flag == "test":
                 bm_flag_preds_npz = {}
                 for models_idx in range(self.args.n_learner):
                     bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
@@ -228,17 +228,26 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
                     np.savez(f, **bm_flag_preds_npz)
             
-            else:
-                existing_bm_flag_preds_npz = np.load(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz')
+            if flag == "vali":
+                if not os.path.exists(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz'):
+                    bm_flag_preds_npz = {}
+                    for models_idx in range(self.args.n_learner):
+                        bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
 
-                bm_flag_preds_npz = {}
-                for models_idx in range(self.args.n_learner):
-                    existing_bm_flag_preds_npy = existing_bm_flag_preds_npz['Learner_' + str(models_idx)]
-                    temp_curr_bm_flag_preds_npy = np.concatenate(bm_flag_preds[models_idx], axis=0)
-                    bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate((existing_bm_flag_preds_npy, temp_curr_bm_flag_preds_npy), axis=0)
+                    with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
+                        np.savez(f, **bm_flag_preds_npz)
+                
+                else:
+                    existing_bm_flag_preds_npz = np.load(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz')
 
-                with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
-                    np.savez(f, **bm_flag_preds_npz)
+                    bm_flag_preds_npz = {}
+                    for models_idx in range(self.args.n_learner):
+                        existing_bm_flag_preds_npy = existing_bm_flag_preds_npz['Learner_' + str(models_idx)]
+                        temp_curr_bm_flag_preds_npy = np.concatenate(bm_flag_preds[models_idx], axis=0)
+                        bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate((existing_bm_flag_preds_npy, temp_curr_bm_flag_preds_npy), axis=0)
+
+                    with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
+                        np.savez(f, **bm_flag_preds_npz)
 
         total_loss = np.average(total_loss)
         self.model.train()
@@ -443,7 +452,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = slow_out[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
+                    loss += ssl_loss_v2(slow_out, batch_y, slow_mark, s1, s2)
 
                     if(need_update):
                         slow_model_optim.zero_grad()
