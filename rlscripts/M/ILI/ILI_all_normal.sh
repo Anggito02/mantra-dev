@@ -12,7 +12,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -39,7 +39,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
@@ -64,7 +64,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -91,7 +91,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
@@ -116,7 +116,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -143,7 +143,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 24 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
@@ -169,7 +169,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -196,7 +196,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
@@ -221,7 +221,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -248,7 +248,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
@@ -273,7 +273,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -300,7 +300,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 36 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
@@ -326,7 +326,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -353,7 +353,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
@@ -378,7 +378,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -405,7 +405,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
@@ -430,7 +430,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -457,7 +457,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 48 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
@@ -483,7 +483,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -510,7 +510,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
@@ -535,7 +535,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -562,7 +562,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
@@ -587,7 +587,7 @@ python -u run_open_net.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 7 \
@@ -614,7 +614,7 @@ python -u run_rlmc.py \
     --seq_len 36 \
     --label_len 18 \
     --pred_len 60 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
