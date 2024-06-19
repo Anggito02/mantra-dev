@@ -134,45 +134,61 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
                             # Outputs for every models
+                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                             for models_idx in range(self.args.n_learner):
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
+                                bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # for models_idx in range(self.args.n_learner):
+                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
-                                # Save bm_flag_preds
-                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            #     # Save bm_flag_preds
+                            #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
-                            # For Mantra
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            # # For Mantra
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
                             # Outputs for every models
-                            for models_idx in range(self.args.n_learner):
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+                            outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                                # Save bm_flag_preds
-                                bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            for models_idx in range(self.args.n_learner):
+                                bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # for models_idx in range(self.args.n_learner):
+                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+
+                            #     # Save bm_flag_preds
+                            #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                             
-                            # For Mantra
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            # # For Mantra
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
                         # Outputs for every models
+                        outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                         for models_idx in range(self.args.n_learner):
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
+                            bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        # for models_idx in range(self.args.n_learner):
+                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
-                            # Save bm_flag_preds
-                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        #     # Save bm_flag_preds
+                        #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
-                        # For Mantra
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        # # For Mantra
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
                         # Outputs for every models
+                        outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                         for models_idx in range(self.args.n_learner):
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+                            bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        # for models_idx in range(self.args.n_learner):
+                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
-                            # Save bm_flag_preds
-                            bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        #     # Save bm_flag_preds
+                        #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
-                        # For Mantra
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        # # For Mantra
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -324,24 +340,33 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                         # print("enter with cuda amp")
                         if self.args.output_attention:
                             # Outputs for every models
+                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                             for models_idx in range(self.args.n_learner):
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
+                                bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
-                                # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # for models_idx in range(self.args.n_learner):
+                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
 
-                            # For Mantra
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            #     # Save bm_train_preds
+                            #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+
+                            # # For Mantra
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
                             # Outputs for every models
+                            outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                             for models_idx in range(self.args.n_learner):
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+                                bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            # for models_idx in range(self.args.n_learner):
+                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
 
-                                # Save bm_train_preds
-                                bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                            #     # Save bm_train_preds
+                            #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
 
-                            # For Mantra
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            # # For Mantra
+                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -351,23 +376,31 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     # print("enter without cuda amp")
                     if self.args.output_attention:
                         # Outputs for every models
-                        for models_idx in range(self.args.n_learner):
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
+                        outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                            # Save bm_train_preds
-                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        for models_idx in range(self.args.n_learner):
+                            bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        # for models_idx in range(self.args.n_learner):
+                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
+
+                        #     # Save bm_train_preds
+                        #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
                         
-                        # For Mantra
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        # # For Mantra
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
                         # Outputs for every models
-                        for models_idx in range(self.args.n_learner):
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+                        outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                            # Save bm_train_preds
-                            bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # For Mantra
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        for models_idx in range(self.args.n_learner):
+                            bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        # for models_idx in range(self.args.n_learner):
+                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
+
+                        #     # Save bm_train_preds
+                        #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
+                        # # For Mantra
+                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -443,7 +476,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
                     # forward slow model
                     if self.args.output_attention:
-                        slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
+                        slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])[0]
                     else:
                         slow_out = self.slow_model.forward(batch_x_slow, batch_x_mark, dec_inp, batch_y_mark[:,:dec_inp.shape[1],:])
 
@@ -554,15 +587,15 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs, attns, _, _ = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            outputs, _ = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        outputs, attns, _, _ = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                     else:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        outputs, _ = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)

@@ -17,7 +17,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='test', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='testB6Slow', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -57,7 +57,7 @@ def main():
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
+    parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
@@ -70,16 +70,16 @@ def main():
     parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--anomaly', type=float, default=10.0, help='anomaly limit')
     parser.add_argument('--des', type=str, default='Exp', help='exp description')
-    parser.add_argument('--loss', type=str, default='neg_corr', help='loss function')
+    parser.add_argument('--loss', type=str, default='MSE', help='loss function')
     parser.add_argument('--corr_penalty', type=float, default=0.5, help='correlation penalty for negative correlation loss function')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     
     # Slow Learner
-    parser.add_argument('--use_slow_learner', action='store_true', help='use slow learner', default=False)
+    parser.add_argument('--use_slow_learner', action='store_true', help='use slow learner', default=True)
 
     # GPU
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')

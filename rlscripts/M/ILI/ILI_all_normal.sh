@@ -21,7 +21,7 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -73,7 +73,7 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -125,7 +125,7 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -178,7 +178,7 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -230,7 +230,7 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -282,7 +282,7 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -335,7 +335,7 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -387,7 +387,7 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -439,7 +439,7 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -492,7 +492,7 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -544,7 +544,7 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \
@@ -596,7 +596,7 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 2048 \
     --itr 1 \

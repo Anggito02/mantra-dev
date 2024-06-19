@@ -39,7 +39,7 @@ class Model(nn.Module):
                 for m in model.modules():
                     if isinstance(m, nn.Linear):
                         # stdev = np.random.uniform(0, 0.01)
-                        stdev = np.random.uniform(0.001, 0.01)
+                        stdev = np.random.uniform(0.0001, 0.001)
                         m.weight.data.normal_(0, stdev)
                         # print("stdev: " +str(stdev))
             else:
@@ -47,7 +47,8 @@ class Model(nn.Module):
                     if isinstance(m, nn.Linear):
                         # stdev = random.uniform(0, 1)
                         # m.weight.data.uniform_(0, 0.01)
-                        m.weight.data.uniform_(0, 0.001)
+                        stdev = np.random.uniform(0.1, 0.0001)
+                        m.weight.data.normal_(0, stdev)
 # 
 # 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
@@ -64,25 +65,30 @@ class Model(nn.Module):
         
         attns=[]
         dec_out = []
+        arr_attns = []
+        arr_dec_out = []
 
         if self.output_attention:
             for i in range (0, self.num_models):
                 do, attn = self.models[i].forward(x_enc, x_mark_enc, x_dec)
+                arr_dec_out.append(do)
                 dec_out.append(do)
+                arr_attns.append(attn)
                 attns.append(attn)
             
             dec_out = torch.stack(dec_out)
             dec_out = torch.mean(dec_out,axis=0)
             attns = torch.stack(attns)
             attns = torch.mean(attns,axis=0)
-            return dec_out, attns
+            return dec_out, attns, arr_dec_out, arr_attns
         else:
             for i in range (0, self.num_models):
                 do = self.models[i].forward(x_enc, x_mark_enc, x_dec, x_mark_dec)
+                arr_dec_out.append(do)
                 dec_out.append(do)
             dec_out = torch.stack(dec_out)
             dec_out = torch.mean(dec_out,axis=0)
-            return dec_out
+            return dec_out, arr_dec_out
 
 
 

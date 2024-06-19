@@ -1123,3 +1123,12 @@ mse:4.38015079498291, mae:1.4819532632827759
 test_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_Exp  
 mse:4.164662837982178, mae:1.4359378814697266
 
+ILI_36_24_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_normal_0  
+mse:3.4668993949890137, mae:1.39498770236969
+
+testB6_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_Exp  
+mse:5.584968090057373, mae:1.8295468091964722
+
+testB6_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el2_dl1_Exp  
+mse:2.584275484085083, mae:1.0087378025054932
+
