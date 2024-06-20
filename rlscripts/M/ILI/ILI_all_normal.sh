@@ -23,6 +23,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -43,6 +44,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -75,6 +77,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -95,6 +98,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -127,6 +131,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -147,6 +152,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -180,6 +186,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -200,6 +207,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -232,6 +240,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -252,6 +261,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -284,6 +294,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -304,6 +315,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -337,6 +349,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -357,6 +370,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -389,6 +403,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -409,6 +424,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -441,6 +457,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -461,6 +478,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -494,6 +512,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -514,6 +533,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -546,6 +566,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -566,6 +587,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
@@ -598,6 +620,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
+    --d_ff 512 \
     --d_ff 2048 \
     --itr 1 \
     --fix_seed 2021 \
@@ -618,6 +641,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
+    --d_ff 512 \
     --seed 42 \
     --use_weight 0 \
     --use_td 1 \
