@@ -6,3 +6,5 @@ numpy
 matplotlib
 reformer_pytorch
 tqdm==4.66.1
+stable-baselines3[extra]
+gymnasium
