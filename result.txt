@@ -1138,3 +1138,12 @@ mse:2.4027647972106934, mae:0.9453347325325012
 testB6Slow_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_Exp  
 mse:2.4323363304138184, mae:1.0206857919692993
 
+Exchange_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_normal_0  
+mse:0.11026201397180557, mae:0.23852503299713135
+
+Exchange_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_normal_1  
+mse:0.09972751885652542, mae:0.22908581793308258
+
+Exchange_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_normal_2  
+mse:0.10301592946052551, mae:0.2321109175682068
+
