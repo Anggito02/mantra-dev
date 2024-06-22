@@ -5,7 +5,7 @@ python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/illness/ \
     --data_path national_illness.csv \
-    --model_id ILI_36_24_new \
+    --model_id ILI_36_24 \
     --model B6iFast \
     --data custom \
     --features M \
@@ -18,7 +18,6 @@ python -u run_open_net.py \
     --enc_in 7 \
     --dec_in 7 \
     --c_out 7 \
-    --dropout 0.01 \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
@@ -28,7 +27,7 @@ python -u run_open_net.py \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
-    --batch_size 16 \
+    --batch_size 32 \
     --patience 5 \
     --checkpoints ./checkpoints/
 
