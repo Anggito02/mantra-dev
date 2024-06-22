@@ -104,21 +104,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
-
-            # bm train preds npz
-            bm_flag_preds = [[] for _ in range(self.args.n_learner)]
-
-            # flag data
-            input_flag_x = []
-            input_flag_y = []
-
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
                 f_dim = -1 if self.args.features == 'MS' else 0
-
-                temp_x, temp_y = batch_x, batch_y
-
-                input_flag_x.append(temp_x.numpy())
-                input_flag_y.append(temp_y[:, -self.args.pred_len:, f_dim:].numpy())
 
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
@@ -135,60 +122,16 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                         if self.args.output_attention:
                             # Outputs for every models
                             outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                            for models_idx in range(self.args.n_learner):
-                                bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                            # for models_idx in range(self.args.n_learner):
-                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
-
-                            #     # Save bm_flag_preds
-                            #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                            # # For Mantra
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
                             # Outputs for every models
                             outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                            for models_idx in range(self.args.n_learner):
-                                bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                            # for models_idx in range(self.args.n_learner):
-                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
-
-                            #     # Save bm_flag_preds
-                            #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                            
-                            # # For Mantra
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
                         # Outputs for every models
                         outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        for models_idx in range(self.args.n_learner):
-                            bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # for models_idx in range(self.args.n_learner):
-                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
-
-                        #     # Save bm_flag_preds
-                        #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                        # # For Mantra
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
                         # Outputs for every models
                         outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        for models_idx in range(self.args.n_learner):
-                            bm_flag_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # for models_idx in range(self.args.n_learner):
-                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
-
-                        #     # Save bm_flag_preds
-                        #     bm_flag_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                        # # For Mantra
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -199,71 +142,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 loss = criterion(pred, true)
 
                 total_loss.append(loss)
-
-            # Save input vali and test
-            np_input_flag_x = np.concatenate(input_flag_x, axis=0)
-            np_input_flag_y = np.concatenate(input_flag_y, axis=0)
-
-            # np_input_flag_x = np.array(input_flag_x)
-            # np_input_flag_x = np_input_flag_x.reshape(np_input_flag_x.shape[0]*np_input_flag_x.shape[1], np_input_flag_x.shape[2], np_input_flag_x.shape[3])
-
-            # np_input_flag_y = np.array(input_flag_y)
-            # np_input_flag_y = np_input_flag_y.reshape(np_input_flag_y.shape[0]*np_input_flag_y.shape[1], np_input_flag_y.shape[2], np_input_flag_y.shape[3])
-
-            if not os.path.exists(self.args.checkpoints + '/' + setting + '/dataset/'):
-                os.makedirs(self.args.checkpoints + '/' + setting + '/dataset/')
-
-            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy'):
-                with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_x.npy', 'wb') as f:
-                    np.save(f, np_input_flag_x)
-            else:
-                if flag == "vali":
-                    temp_np_input_flag_x = np.load(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy')
-                    np_input_flag_x = np.concatenate((temp_np_input_flag_x, np_input_flag_x), axis=0)
-                    np.save(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_x.npy', np_input_flag_x)
-            
-            if not os.path.exists(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy'):
-                with open(self.args.checkpoints + '/' + setting + '/dataset/' + f'input_{flag}_y.npy', 'wb') as f:
-                    np.save(f, np_input_flag_y)
-            else:
-                if flag == "vali":
-                    temp_np_input_flag_y = np.load(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy')
-                    np_input_flag_y = np.concatenate((temp_np_input_flag_y, np_input_flag_y), axis=0)
-                    np.save(self.args.checkpoints + '/' + setting + f'/dataset/input_{flag}_y.npy', np_input_flag_y)
-
-            # Update numpy bm_flag_preds
-            bm_flag_preds_npz_path = self.args.checkpoints + '/' + setting + '/' + 'rl_bm' + '/'
-            if not os.path.exists(bm_flag_preds_npz_path):
-                os.makedirs(bm_flag_preds_npz_path)
-
-            if flag == "test":
-                bm_flag_preds_npz = {}
-                for models_idx in range(self.args.n_learner):
-                    bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
-
-                with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
-                    np.savez(f, **bm_flag_preds_npz)
-            
-            if flag == "vali":
-                if not os.path.exists(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz'):
-                    bm_flag_preds_npz = {}
-                    for models_idx in range(self.args.n_learner):
-                        bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_flag_preds[models_idx], axis=0)
-
-                    with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
-                        np.savez(f, **bm_flag_preds_npz)
-                
-                else:
-                    existing_bm_flag_preds_npz = np.load(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz')
-
-                    bm_flag_preds_npz = {}
-                    for models_idx in range(self.args.n_learner):
-                        existing_bm_flag_preds_npy = existing_bm_flag_preds_npz['Learner_' + str(models_idx)]
-                        temp_curr_bm_flag_preds_npy = np.concatenate(bm_flag_preds[models_idx], axis=0)
-                        bm_flag_preds_npz['Learner_' + str(models_idx)] = np.concatenate((existing_bm_flag_preds_npy, temp_curr_bm_flag_preds_npy), axis=0)
-
-                    with open(self.args.checkpoints + '/' + setting + f'/rl_bm/bm_{flag}_preds.npz', 'wb') as f:
-                        np.savez(f, **bm_flag_preds_npz)
 
         total_loss = np.average(total_loss)
         self.model.train()
@@ -299,13 +177,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
 
-        # bm train preds npz
-        bm_train_preds = [[] for _ in range(self.args.n_learner)]
-
-        # Initialize Input train, vali, test 3 dimension numpy array
-        input_train_x = []
-        input_train_y = []
-
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             train_loss = []
@@ -317,11 +188,6 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                 iter_count += 1
                 model_optim.zero_grad()
                 f_dim = -1 if self.args.features == 'MS' else 0
-
-                temp_x, temp_y = batch_x, batch_y
-
-                input_train_x.append(temp_x.numpy())
-                input_train_y.append(temp_y[:, -self.args.pred_len:, f_dim:].numpy())
 
                 batch_x = batch_x.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
@@ -342,31 +208,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                             # Outputs for every models
                             outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                            for models_idx in range(self.args.n_learner):
-                                bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                            # for models_idx in range(self.args.n_learner):
-                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)[0]
-
-                            #     # Save bm_train_preds
-                            #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                            # # For Mantra
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                         else:
                             # Outputs for every models
                             outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                            for models_idx in range(self.args.n_learner):
-                                bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                            # for models_idx in range(self.args.n_learner):
-                            #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
-
-                            #     # Save bm_train_preds
-                            #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-
-                            # # For Mantra
-                            # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -377,30 +221,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     if self.args.output_attention:
                         # Outputs for every models
                         outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        for models_idx in range(self.args.n_learner):
-                            bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # for models_idx in range(self.args.n_learner):
-                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark,dec_inp, batch_y_mark, idx=models_idx)[0]
-
-                        #     # Save bm_train_preds
-                        #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        
-                        # # For Mantra
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                     else:
                         # Outputs for every models
                         outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        for models_idx in range(self.args.n_learner):
-                            bm_train_preds[models_idx].append(arr_outputs[models_idx][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # for models_idx in range(self.args.n_learner):
-                        #     outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark, idx=models_idx)
-
-                        #     # Save bm_train_preds
-                        #     bm_train_preds[models_idx].append(outputs[:, -self.args.pred_len:, f_dim:].detach().cpu().numpy())
-                        # # For Mantra
-                        # outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -519,39 +342,8 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        # Save input train
-        np_input_train_x = np.concatenate(input_train_x, axis=0)
-        np_input_train_y = np.concatenate(input_train_y, axis=0)
-
-        # np_input_train_x = np.array(input_train_x)
-        # np_input_train_x = np_input_train_x.reshape(np_input_train_x.shape[0]*np_input_train_x.shape[1], np_input_train_x.shape[2], np_input_train_x.shape[3])
-
-        # np_input_train_y = np.array(input_train_y)
-        # np_input_train_y = np_input_train_y.reshape(np_input_train_y.shape[0]*np_input_train_y.shape[1], np_input_train_y.shape[2], np_input_train_y.shape[3])
-
-        if not os.path.exists(self.args.checkpoints + '/' + setting + '/dataset/'):
-            os.makedirs(self.args.checkpoints + '/' + setting + '/dataset/')
-
-        with open(self.args.checkpoints + '/' + setting + '/dataset/'  'input_train_x.npy', 'wb') as f:
-            np.save(f, np_input_train_x)
-        with open(self.args.checkpoints + '/' + setting + '/dataset/' + 'input_train_y.npy', 'wb') as f:
-            np.save(f, np_input_train_y)
-
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
-
-        # Update numpy bm_train_preds
-        bm_train_preds_npz = {}
-        for models_idx in range(self.args.n_learner):
-            bm_train_preds_npz['Learner_' + str(models_idx)] = np.concatenate(bm_train_preds[models_idx], axis=0)
-
-        bm_train_preds_npz_path = self.args.checkpoints + '/' + setting + '/' + 'rl_bm' + '/'
-        if not os.path.exists(bm_train_preds_npz_path):
-            os.makedirs(bm_train_preds_npz_path)
-            
-        bm_train_preds_npz_path = os.path.join(self.args.checkpoints, setting, 'rl_bm', 'bm_train_preds.npz')
-        with open(bm_train_preds_npz_path, 'wb') as f:
-            np.savez(f, **bm_train_preds_npz)
 
         return self.model
 
@@ -675,24 +467,79 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         #     self.test_1learner(setting, test, i)
         return
 
+    def set_rl_data(self, setting):
+        train_source_raw, train_trues, train_arr_preds, _ = self._forward_rl(setting, 'train')
+        vali_source_raw, vali_trues, vali_arr_preds, _ = self._forward_rl(setting, 'val')
+        test_source_raw, test_trues, test_arr_preds, _ = self._forward_rl(setting, 'test')
 
+        train_source = np.concatenate(train_source_raw, axis=0)
+        vali_source = np.concatenate(vali_source_raw, axis=0)
+        test_source = np.concatenate(test_source_raw, axis=0)
 
-    def test_1learner(self, setting, test=0, idx=0):
-        test_data, test_loader = self._get_data(flag='test')
-        if test:
-            print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+        train_trues = np.concatenate(train_trues, axis=0)
+        vali_trues = np.concatenate(vali_trues, axis=0)
+        test_trues = np.concatenate(test_trues, axis=0)
 
+        train_bm_preds = {}
+        vali_bm_preds = {}
+        test_bm_preds = {}
+
+        n_learner = self.args.n_learner
+        for i in range(n_learner):
+            train_bm_preds[f'Learner_{i}'] = train_arr_preds[i]
+            vali_bm_preds[f'Learner_{i}'] = vali_arr_preds[i]
+            test_bm_preds[f'Learner_{i}'] = test_arr_preds[i]
+
+        checkpoint_path = './checkpoints/' + setting
+
+        if not os.path.exists(checkpoint_path + '/dataset/'):
+            os.makedirs(checkpoint_path + '/dataset/')
+
+        if not os.path.exists(checkpoint_path + '/rl_bm/'):
+            os.makedirs(checkpoint_path + '/rl_bm/')
+
+        with open('./checkpoints/' + setting + '/dataset/input_train_x.npy', 'wb') as f:
+            np.save(f, train_source)
+
+        with open('./checkpoints/' + setting + '/dataset/input_train_y.npy', 'wb') as f:
+            np.save(f, train_trues)
+
+        with open('./checkpoints/' + setting + '/dataset/input_vali_x.npy', 'wb') as f:
+            np.save(f, vali_source)
+
+        with open('./checkpoints/' + setting + '/dataset/input_vali_y.npy', 'wb') as f:
+            np.save(f, vali_trues)
+
+        with open('./checkpoints/' + setting + '/dataset/input_test_x.npy', 'wb') as f:
+            np.save(f, test_source)
+
+        with open('./checkpoints/' + setting + '/dataset/input_test_y.npy', 'wb') as f:
+            np.save(f, test_trues)
+
+        with open('./checkpoints/' + setting + '/rl_bm/bm_train_preds.npz', 'wb') as f:
+            np.savez(f, **train_bm_preds)
+
+        with open('./checkpoints/' + setting + '/rl_bm/bm_vali_preds.npz', 'wb') as f:
+            np.savez(f, **vali_bm_preds)
+
+        with open('./checkpoints/' + setting + '/rl_bm/bm_test_preds.npz', 'wb') as f:
+            np.savez(f, **test_bm_preds)
+
+        return
+
+    def _forward_rl(self, setting, flag):
+        _, data_loader = self._get_data(flag)
+        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+
+        source = []
         preds = []
+        # make an array of empty array with size of n_learner
+        arr_preds = [[] for _ in range(self.args.n_learner)]
         trues = []
-        folder_path = './test_results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
 
         self.model.eval()
-        isFirst = True
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(data_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -707,71 +554,55 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
                             if self.args.use_multi_gpu and self.args.use_gpu:
-                                outputs = self.model.module.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)[0]
+                                outputs, attns, arr_outputs, arr_attns = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                             else:
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)[0]
+                                outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                         else:
                             if self.args.use_multi_gpu and self.args.use_gpu:
-                                outputs = self.model.module.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)
+                                outputs, arr_outputs = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                             else:
-                                outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)
+                                outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
                         if self.args.use_multi_gpu and self.args.use_gpu:
-                            outputs = self.model.module.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)[0]
+                            outputs, attns, arr_outputs, arr_attns = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                         else:
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)[0]
+                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                     else:
                         if self.args.use_multi_gpu and self.args.use_gpu:
-                            outputs = self.model.module.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)
+                            outputs, arr_outputs = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                         else:
-                            outputs = self.model.forward_1learner(batch_x, batch_x_mark, dec_inp, batch_y_mark,idx=idx)
+                            outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                             
 
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+
+                batch_x = batch_x.detach().cpu().numpy()
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
+                for i in range(self.args.n_learner):
+                    arr_outputs[i] = arr_outputs[i].detach().cpu().numpy()
+
+                raw = batch_x
                 pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
+                arr_pred = arr_outputs
                 true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
 
-                if isFirst:
-                    isFirst = False
-                    preds = np.array(pred)
-                    trues = np.array(true)
+                source.append(raw)
+                preds.append(pred)
+                trues.append(true)
 
-                else:
-                    preds = np.concatenate((preds,pred), axis=0)
-                    trues = np.concatenate((trues,true), axis=0)
-                
-                if i % 20 == 0:
-                    input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                for i in range(self.args.n_learner):
+                    arr_preds[i].append(arr_pred[i])
 
-        
+        for i in range(self.args.n_learner):
+            arr_preds[i] = np.concatenate(arr_preds[i], axis=0)
 
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
-        # print('test shape:', preds.shape, trues.shape)
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
-        f = open("result.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae))
-        f.write('\n')
-        f.write('\n')
-        f.close()
-
-        return
+        return source, trues, arr_preds, preds
+    
 
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
