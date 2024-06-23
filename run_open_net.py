@@ -3,6 +3,7 @@ import os
 import torch
 from exp.exp_open_net import Exp_Main_DualmodE3K
 from exp.opt_urt import Opt_URT
+from exp.opt_rl import OPT_RL_OpenNet
 
 import warnings
 import random
@@ -153,14 +154,14 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+            # exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)
 
             # Testing only Mantra
             print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.test(setting)
+            # exp.test(setting)
 
             gc.collect()
             torch.cuda.empty_cache()
@@ -201,10 +202,10 @@ def main():
             opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            opt.train_urt(setting)
+            # opt.train_urt(setting)
 
             print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            opt.test2(setting)
+            # opt.test2(setting)
 
             gc.collect()
             torch.cuda.empty_cache()
@@ -231,6 +232,29 @@ def main():
         #     # opt.test2(setting)
 
         #     torch.cuda.empty_cache()
+
+        OptRL = OPT_RL_OpenNet
+        for ii in range(args.itr):
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
+                args.model_id,
+                args.model,
+                args.data,
+                args.features,
+                args.seq_len,
+                args.label_len,
+                args.pred_len,
+                args.d_model,
+                args.e_layers,
+                args.d_layers,
+                args.des)
+            
+            optRL = OptRL(args)  # set experiments
+
+            print('>>>>>>>start training RL: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+            optRL.train_rl(setting)
+
+            gc.collect()
+            torch.cuda.empty_cache()
     else:
         ii = 0
         setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(args.model_id,
