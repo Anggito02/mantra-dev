@@ -1,0 +1,106 @@
+export CUDA_VISIBLE_DEVICES=0
+
+# 36/24
+python -u run_open_net_new.py \
+    --is_training 1 \
+    --root_path ./dataset/illness/ \
+    --data_path national_illness.csv \
+    --model_id ILI_36_24 \
+    --model iTransformer \
+    --data custom \
+    --features M \
+    --seq_len 36 \
+    --label_len 18 \
+    --pred_len 24 \
+    --e_layers 3 \
+    --d_layers 1 \
+    --enc_in 7 \
+    --dec_in 7 \
+    --c_out 7 \
+    --des 'normal_0' \
+    --n_learner 3 \
+    --urt_heads 1 \
+    --learning_rate 0.0001 \
+    --dropout 0.1 \
+    --d_model 512 \
+    --d_ff 512 \
+    --d_ff 512 \
+    --itr 1 \
+    --fix_seed 2021 \
+    --train_epochs 20 \
+    --batch_size 32 \
+    --patience 5 \
+    --is_training_fastlearner 1 \
+    --is_training_rl 0 \
+    --model_idx 0 \
+    --checkpoints ./checkpoints/
+
+python -u run_open_net_new.py \
+    --is_training 1 \
+    --root_path ./dataset/illness/ \
+    --data_path national_illness.csv \
+    --model_id ILI_36_24 \
+    --model iTransformer \
+    --data custom \
+    --features M \
+    --seq_len 36 \
+    --label_len 18 \
+    --pred_len 24 \
+    --e_layers 3 \
+    --d_layers 1 \
+    --enc_in 7 \
+    --dec_in 7 \
+    --c_out 7 \
+    --des 'normal_0' \
+    --n_learner 3 \
+    --urt_heads 1 \
+    --learning_rate 0.001 \
+    --dropout 0.01 \
+    --d_model 512 \
+    --d_ff 512 \
+    --d_ff 512 \
+    --itr 1 \
+    --fix_seed 2022 \
+    --train_epochs 20 \
+    --batch_size 32 \
+    --patience 5 \
+    --is_training_fastlearner 1 \
+    --is_training_rl 0 \
+    --model_idx 1 \
+    --checkpoints ./checkpoints/
+
+
+python -u run_open_net_new.py \
+    --is_training 1 \
+    --root_path ./dataset/illness/ \
+    --data_path national_illness.csv \
+    --model_id ILI_36_24 \
+    --model iTransformer \
+    --data custom \
+    --features M \
+    --seq_len 36 \
+    --label_len 18 \
+    --pred_len 24 \
+    --e_layers 3 \
+    --d_layers 1 \
+    --enc_in 7 \
+    --dec_in 7 \
+    --c_out 7 \
+    --des 'normal_0' \
+    --n_learner 3 \
+    --urt_heads 1 \
+    --learning_rate 0.005 \
+    --dropout 0.05 \
+    --d_model 512 \
+    --d_ff 512 \
+    --d_ff 2048 \
+    --itr 1 \
+    --fix_seed 2023 \
+    --train_epochs 20 \
+    --batch_size 32 \
+    --patience 5 \
+    --is_training_fastlearner 1 \
+    --is_training_rl 1 \
+    --model_idx 2 \
+    --checkpoints ./checkpoints/
+

@@ -9,21 +9,17 @@ from data_provider.data_factory import data_provider
 from utils.slowloss import ssl_loss_v2
 import numpy as np
 from tqdm import trange
-from exp.exp_rl import Env
+from utils.open_net_env import OpenNetEnv, evaluate_policy
 
 from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, iTransformer, B6iFast, S1iSlow 
 from models import Uautoformer, UautoformerC1, UautoformerC2, Uautoformer2, Transformer, Reformer, Mantra, MantraV1, MantraA, MantraB, MantraD, MantraE
 
 from stable_baselines3 import DDPG
-
-from utils.tools import EarlyStopping, adjust_learning_rate, visual
-from utils.metrics import metric, NegativeCorr
-from utils.slowloss import SlowLearnerLoss, ssl_loss, ssl_loss_v2
+from stable_baselines3.common.noise import NormalActionNoise
 
 class OPT_RL_OpenNet(Exp_Basic):
     def __init__(self, args):
         super(OPT_RL_OpenNet, self).__init__(args)
-        self.model = None
         self.device = self._acquire_device()
 
     def _build_model(self):
@@ -86,11 +82,12 @@ class OPT_RL_OpenNet(Exp_Basic):
             device = torch.device('cpu')
             print('Use CPU')
         return device
-    
-    def valid_model(self, setting, valid_data, valid_loader):
-        pass
 
-    def test_model(self, setting, flag_data, flag_loader):
+    def test_model(self, flag_data, flag_loader):
+        sources = []
+        trues = []
+        preds = []
+
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
                 batch_x = batch_x.float().to(self.device)
@@ -123,26 +120,23 @@ class OPT_RL_OpenNet(Exp_Basic):
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_x = batch_x.detach().cpu().numpy()
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
-                if flag_data.scale and self.args.inverse:
-                    shape = outputs.shape
-                    outputs = flag_data.inverse_transform(outputs.squeeze(0)).reshape(shape)
-                    batch_y = flag_data.inverse_transform(batch_y.squeeze(0)).reshape(shape)
 
+                source = batch_x
                 pred = outputs
                 true = batch_y
 
+                sources.append(source)
                 preds.append(pred)
                 trues.append(true)
 
-            preds = np.array(preds)
-            trues = np.array(trues)
-            preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-            trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+            sources = np.concatenate(sources)
+            preds = np.concatenate(preds)
+            trues = np.concatenate(trues)
 
-            mae, mse, rmse, mape, mspe = metric(preds, trues)
-            return mse, mae, mape, preds, trues
+            return sources, preds, trues
     
     def opt_rl_train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
@@ -153,41 +147,108 @@ class OPT_RL_OpenNet(Exp_Basic):
         assert os.path.exists(model_path), "cannot find {} model path".format(model_path)
         model_list = [model_state for model_state in os.listdir(model_path) if model_state.endswith(".pth")]
 
-        train_model_errors = []
-        valid_model_errors = []
-        test_model_errors = []
+        list_train_X = []
+        list_train_Y = []
+        list_valid_X = []
+        list_valid_Y = []
+        list_test_X = []
+        list_test_Y = []
+        train_preds = []
+        vali_preds = []
+        test_preds = []
 
-        for model_idx in trange(len(model_list), desc='[Optimize RL]'):
+        for model_idx in trange(len(model_list), desc='[Set RL Data]'):
             model_name = model_list[model_idx].split(".")[0].split("_")[-1]
 
             # Load the model
-            self.model = self.model_dict[model_name].Model(self.args).float().to(self.device)
-            model_load_state = torch.load(os.path.join("./checkpoints/", setting, model_list[model_idx]))
-            self.model.load_state_dict(model_load_state)
+            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, f'checkpoint_fast_{self.args.model_idx}_{self.args.model}.pth')))
             
             # Get Train data
-            preds, trues, mse, mae, mape = self.test_model(setting, train_data, train_loader)
-            train_model_errors.append([preds, trues, mse, mae, mape])
+            sources, preds, trues = self.test_model(train_data, train_loader)
 
-            # Get Vali data
-            preds, trues, mse, mae, mape = self.test_model(setting, vali_data, vali_loader)
-            valid_model_errors.append([preds, trues, mse, mae, mape])
+            list_train_X.append(sources)
+            list_train_Y.append(preds)
+            train_preds.append(trues)
+
+            # Get Validation data
+            sources, preds, trues = self.test_model(vali_data, vali_loader)
+
+            list_valid_X.append(sources)
+            list_valid_Y.append(preds)
+            vali_preds.append(trues)
 
             # Get Test data
-            preds, trues, mse, mae, mape = self.test_model(setting, test_data, test_loader)
-            test_model_errors.append([preds, trues, mse, mae, mape])
+            sources, preds, trues = self.test_model(test_data, test_loader)
 
+            list_test_X.append(sources)
+            list_test_Y.append(preds)
+            test_preds.append(trues)
 
-        model_train_mse_loss = []
-        model_train_gt = []
-        model_train_preds = 
+        list_train_X = np.concatenate(list_train_X)
+        list_train_Y = np.concatenate(list_train_Y)
+        list_valid_X = np.concatenate(list_valid_X)
+        list_valid_Y = np.concatenate(list_valid_Y)
+        list_test_X = np.concatenate(list_test_X)
+        list_test_Y = np.concatenate(list_test_Y)
+            
+        bm_train_preds = {}
+        bm_vali_preds = {}
+        bm_test_preds = {}
 
-        for i in range(len(train_model_errors)):
-            model_train_mse_loss.append(train_model_errors[i][2])
-            model_train_gt.append(test_model_errors[i][1])
-        
-        env = Env(model_train_mse_loss, model_train_gt, )
+        for model_idx in range(len(model_list)):
+            bm_train_preds['Learner_' + str(model_idx)] = train_preds[model_idx]
+            bm_vali_preds['Learner_' + str(model_idx)] = vali_preds[model_idx]
+            bm_test_preds['Learner_' + str(model_idx)] = test_preds[model_idx]
 
+        # save rl data
+        if not os.path.exists(f'{model_path}/dataset'):
+            os.makedirs(f'{model_path}/dataset')
 
+        if not os.path.exists(f'{model_path}/rl_bm'):
+            os.makedirs(f'{model_path}/rl_bm')
 
+        with open(f'{model_path}/dataset/input_train_x.npy', 'wb') as f:
+            np.save(f, list_train_X)
+        with open(f'{model_path}/dataset/input_train_y.npy', 'wb') as f:
+            np.save(f, list_train_Y)
+        with open(f'{model_path}/dataset/input_vali_x.npy', 'wb') as f:
+            np.save(f, list_valid_X)
+        with open(f'{model_path}/dataset/input_vali_y.npy', 'wb') as f:
+            np.save(f, list_valid_Y)
+        with open(f'{model_path}/dataset/input_test_x.npy', 'wb') as f:
+            np.save(f, list_test_X)
+        with open(f'{model_path}/dataset/input_test_y.npy', 'wb') as f:
+            np.save(f, list_test_Y)
 
+        with open(f'{model_path}/rl_bm/bm_train_preds.npz', 'wb') as f:
+            np.save(f, **bm_train_preds)
+        with open(f'{model_path}/rl_bm/bm_vali_preds.npz', 'wb') as f:
+            np.save(f, **bm_vali_preds)
+        with open(f'{model_path}/rl_bm/bm_test_preds.npz', 'wb') as f:
+            np.save(f, **bm_test_preds)
+
+        # RL training
+        train_env = OpenNetEnv(model_path, len(model_list), mode="train")
+
+        n_actions = len(model_list)
+        action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
+
+        model = DDPG("MlpPolicy", train_env, action_noise=action_noise, verbose=1)
+
+        model.learn(total_timesteps=list_train_X.shape[0])
+
+        # RL validation
+        vali_env = OpenNetEnv(model_path, len(model_list), mode="vali")
+        mse_loss, mae_loss, mean_reward, std_reward = evaluate_policy(model, vali_env, n_eval_episodes=1)
+        print(f"\nRL Validation\nmean_reward={mean_reward:.2f} +/- {std_reward:.2f}\nMSE={mse_loss:.3f}, MAE={mae_loss:.3f}")
+
+        model.save(f"{model_path}/rl_model")
+
+        del model, train_env, vali_env
+
+        # RL testing
+        model = DDPG.load(f"{model_path}/rl_model")
+
+        test_env = OpenNetEnv(model_path, len(model_list), mode="test")
+        mse_loss, mae_loss, mean_reward, std_reward = evaluate_policy(model, test_env, n_eval_episodes=1)
+        print(f"\nRL Test\nmean_reward={mean_reward:.2f} +/- {std_reward:.2f}\nMSE={mse_loss:.3f}, MAE={mae_loss:.3f}")
