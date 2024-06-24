@@ -21,11 +21,11 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 512 \
     --itr 1 \
-    --fix_seed 2021 \
+    --fix_seed 2023 \
     --train_epochs 20 \
     --batch_size 32 \
     --patience 5 \
@@ -43,8 +43,7 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
-    --d_ff 512 \
-    --seed 42 \
+    --seed 2023 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
@@ -74,11 +73,11 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
     --d_ff 512 \
     --itr 1 \
-    --fix_seed 2022 \
+    --fix_seed 2023 \
     --train_epochs 20 \
     --batch_size 32 \
     --patience 5 \
@@ -96,15 +95,14 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
-    --d_ff 512 \
     --seed 2021 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.2 \
     --gamma 0.99 \
-    --tau 0.005 \
+    --tau 0.1 \
     --exp_name Exchange_96_96
 
 python -u run_open_net.py \
@@ -149,7 +147,6 @@ python -u run_rlmc.py \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
-    --d_ff 512 \
     --seed 2022 \
     --use_weight 0 \
     --use_td 1 \
@@ -157,5 +154,5 @@ python -u run_rlmc.py \
     --use_pretrain 1 \
     --epsilon 1 \
     --gamma 0.99 \
-    --tau 0.005 \
+    --tau 0.05 \
     --exp_name Exchange_96_96
