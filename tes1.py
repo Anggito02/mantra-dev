@@ -1,281 +1,217 @@
+import os
 import torch
+import torch.nn as nn
+
+from torch import optim
+from exp.exp_basic import Exp_Basic
+from data_provider.data_factory import data_provider
+from utils.slowloss import ssl_loss_v2
 import numpy as np
-from collections import Counter
-from sktime.performance_metrics.forecasting import \
-    mean_absolute_error, mean_absolute_percentage_error
-from utils.tools import adjustment
-import math
-from gym.utils import seeding
-from gym import spaces
-import gym
-import time
-import random
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, precision_recall_fscore_support
-def get_mape_reward(q_mape, mape, R=1):
-        q = 0
-        while (q < 9) and (mape > q_mape):
-            q = q+ 1
-        reward = -R + 2*R*(9 - q)/9
-        return reward
+from tqdm import trange
+from utils.rl_env import OpenNetEnv, evaluate_policy
 
-def get_mae_reward(q_mae, mae, R=1):
-    q = 0
-    while (q < 9) and (mae > q_mae[q]):
-        q = q+ 1
-    reward = -R + 2*R*(9 - q)/9
-    return reward
-# RANK dari
-def get_rank_reward(rank, R=1):
-        reward = -R + 2*R*(9 - rank)/9
-        return reward
+from models import Informer, Autoformer, AutoformerS1, Bautoformer, B2autoformer, B3autoformer, B4autoformer, B5autoformer, B6autoformer, B7autoformer, iTransformer, B6iFast, S1iSlow 
+from models import Uautoformer, UautoformerC1, UautoformerC2, Uautoformer2, Transformer, Reformer, Mantra, MantraV1, MantraA, MantraB, MantraD, MantraE
 
-def get_batch_rewards(env, idxes, actions, q_mae):
-    rewards = []
-    # mae_lst = []
-    for i in range(len(idxes)):
-        rank, new_mae = env.reward_func(idxes[i], actions[i])
-        rank_reward = get_rank_reward(rank, 1)
-        # mape_reward = get_mape_reward(new_mape, 1)
-        mae_reward  = get_mae_reward(q_mae, new_mae, 2)
-        combined_reward = mae_reward + rank_reward
-        # mae_lst.append(new_mae)
-        rewards.append(combined_reward)
-    # return rewards, mae_lst
-    return rewards
+from stable_baselines3 import DDPG
+from stable_baselines3.common.noise import NormalActionNoise
 
-def evaluate_agent(agent, test_states, test_bm_preds, test_X):
-    with torch.no_grad():
-        weights = agent.select_action(test_states)  # (2816, 9)
-    act_counter = Counter(weights.argmax(1))
-    act_sorted  = sorted([(k, v) for k, v in act_counter.items()])
-    weights = np.expand_dims(weights, -1)  # (2816, 9, 1)
+class OPT_RL_OpenNet(Exp_Basic):
+    def __init__(self, args):
+        super(OPT_RL_OpenNet, self).__init__(args)
+        self.device = self._acquire_device()
 
-    list_weighted_y = []
-    for i in range(math.ceil(test_bm_preds.shape[0]/weights.shape[0])):
-        start_idx = i * weights.shape[0]
-        end_idx = (i + 1) * weights.shape[0]
-        chunk = test_bm_preds[start_idx:end_idx]
-        weighted_sum = np.multiply(weights, chunk).sum(1)
-        list_weighted_y.append(weighted_sum)
-    weighted_y = np.concatenate(list_weighted_y, axis=0)
-    # weighted_y = weights * test_bm_preds[:weights.shape[0]]  # (2816, 9, 24)
-    # weighted_y = weighted_y.sum(1)  # (2816, 24)
-    mae_loss = mean_absolute_error(test_X, weighted_y)
-    mape_loss = mean_absolute_percentage_error(test_X, weighted_y)
-    return mae_loss, mape_loss, act_sorted
+    def _build_model(self):
+        model_dict = {
+            'Autoformer': Autoformer,
+            'AutoformerS1': AutoformerS1,
+            'Bautoformer': Bautoformer,
+            'B2autoformer': B2autoformer,
+            'B3autoformer': B3autoformer,
+            'B4autoformer': B4autoformer,
+            'B5autoformer': B5autoformer,
+            'B6autoformer': B6autoformer,
+            'B7autoformer': B7autoformer,
+            'Mantra': Mantra,
+            'MantraV1': MantraV1,
+            'MantraA': MantraA,
+            'MantraB': MantraB,
+            'MantraD': MantraD,
+            'MantraE': MantraE,
+            'Uautoformer': Uautoformer,
+            'UautoformerC1': UautoformerC1,
+            'UautoformerC2': UautoformerC2,
+            'Uautoformer2': Uautoformer2,
+            'Transformer': Transformer,
+            'Informer': Informer,
+            'Reformer': Reformer,
+            'iTransformer' : iTransformer,
+            'B6iFast' : B6iFast,
+            'S1iSlow' : S1iSlow,
+        }
+        model = model_dict[self.args.model].Model(self.args).float()
 
-def evaluate_agent_test(agent, train_states, train_bm_preds, test_states, test_bm_preds, test_labels, anomaly_ratio):
-    with torch.no_grad():
-        weights_train = agent.select_action(train_states)  # (58120, 3) #outputs train pada test misal = 32,100,55
-        weights_test = agent.select_action(test_states)  # (58120, 3)
+        if self.args.use_multi_gpu and self.args.use_gpu:
+            model = nn.DataParallel(model, device_ids=self.args.device_ids)
+        return model
 
-    weights_train = np.expand_dims(weights_train, -1)  # (58120, 3, 1)
-    weights_test = np.expand_dims(weights_test, -1)  # (58120, 3, 1)
+    def _get_data(self, flag):
+        data_set, data_loader = data_provider(self.args, flag)
+        return data_set, data_loader
 
-    weighted_train_y = weights_train * train_bm_preds  # (58120, 3, 55)
-    weighted_test_y = weights_test * test_bm_preds  # (58120, 3, 55)
+    def _select_optimizer(self):
+        model_optim = optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
+        return model_optim
 
-    weighted_train_y = weighted_train_y.sum(1) # (58120)
-    weighted_test_y = weighted_test_y.sum(1)# (58120)
-    # weighted_test_y = test_bm_preds.mean(2).sum(1)# (58120)
+    def _select_slow_optimizer(self):
+        slow_model_optim = optim.Adam(self.slow_model.parameters(), lr=self.args.learning_rate)
+        return slow_model_optim
 
-    # Accuracy Precision Recall Fscore
-    combined_energy = np.concatenate([weighted_train_y, weighted_test_y], axis=0).reshape(-1)
-
-    threshold = np.percentile(combined_energy, 100 - anomaly_ratio)
-
-    print("Threshold :", threshold)
-
-    gt = test_labels[:,:weighted_test_y.shape[1]].reshape(-1).astype(int)
-    weighted_test_y = weighted_test_y.reshape(-1)
-    # weighted_test_y = weighted_test_y.reshape(-1)
-    pred = (weighted_test_y > threshold).astype(int)
-    # pred = (test_bm_preds > threshold).astype(int)
-
-    gt, pred = adjustment(gt, pred) #gt == label
-    gt, pred = np.array(gt), np.array(pred)
-    print("pred: ", pred.shape)
-    print("gt:   ", gt.shape)
-
-    accuracy = accuracy_score(gt, pred)
-    precision, recall, f_score, support = precision_recall_fscore_support(gt, pred, average='binary')
-    return accuracy, precision, recall, f_score
-
-def sparse_explore(obs, act_dim):
-    N = len(obs)
-    x = np.zeros((N, act_dim))
-    randn_idx = np.random.randint(0, act_dim, size=(N,))
-    x[np.arange(N), randn_idx] = 1
-
-    # disturb from the vertex
-    delta = np.random.uniform(0.02, 0.1, size=(N, 1))
-    x[np.arange(N), randn_idx] = x[np.arange(N), randn_idx] - delta.squeeze()
-
-    # noise
-    noise = np.abs(np.random.randn(N, act_dim))
-    noise[np.arange(N), randn_idx] = 0
-    noise = noise/ noise.sum(1, keepdims=True)
-    noise = delta * noise
-    sparse_action = x + noise
-
-    return sparse_action
-
-def get_state_weight(train_error):
-    L = len(train_error)
-    best_model = train_error.argmin(1)
-    best_model_counter = Counter(best_model)
-    model_weight = {k:v/L for k,v in best_model_counter.items()}
-    return model_weight
-
-class EnvOffline_dist_conf(gym.Env):
-    '''Gym environment for model selection in offline setting.
-
-    model_path: path to the pretrained models;
-    list_pred_sc: the flattened list of raw predicted scores (each one being 1D numpy array) 
-                    of the testing data from each model;
-    list_thresholds: the list of raw anomaly thresholds from each model;'''
+    def _select_criterion(self):
+        criterion = nn.MSELoss()
+        return criterion
     
-    def __init__(self, list_pred_sc, list_thresholds,list_gtruth):
+    def _acquire_device(self):
+        if self.args.use_gpu:
+            os.environ["CUDA_VISIBLE_DEVICES"] = str(
+                self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
+            device = torch.device('cuda:{}'.format(self.args.gpu))
+            print('Use GPU: cuda:{}'.format(self.args.gpu))
+        else:
+            device = torch.device('cpu')
+            print('Use CPU')
+        return device
 
-        # Length of the testing data, number of models
-        self.len_data = len(list_pred_sc[0])
-        self.num_models = len(list_pred_sc)
+    def test_model(self, flag_data, flag_loader):
+        inputs = []
+        trues = []
+        preds = []
 
-        #List of ground truth labels
-        self.gtruth = list_gtruth.astype(int)
+        self.model.eval()
+        with torch.no_grad():
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                # encoder - decoder
+                if self.args.use_amp:
+                    with torch.cuda.amp.autocast():
+                        if self.args.output_attention:
+                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        else:
+                            outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                else:
+                    if self.args.output_attention:
+                        outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                    else:
+                        outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                f_dim = -1 if self.args.features == 'MS' else 0
+
+                for i in range(self.args.n_learner):
+                    arr_outputs[i] = arr_outputs[i][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy()
+                batch_x = batch_x.detach().cpu().numpy()
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y = batch_y.detach().cpu().numpy()
+
+                arr_outputs = np.array(arr_outputs)
+                input = batch_x
+                true = batch_y
+
+                preds.append(arr_outputs)
+                inputs.append(input)
+                trues.append(true)
+
+            preds = np.concatenate(preds, axis=1)
+            inputs = np.concatenate(inputs)
+            trues = np.concatenate(trues)
+
+            return inputs, preds, trues
         
-        # Raw scores and thresholds of the testing data
-        self.list_pred_sc = list_pred_sc
-        self.list_thresholds = list_thresholds
+    def train_rl(self, setting):
+        train_data, train_loader = self._get_data(flag='train')
+        vali_data, vali_loader = self._get_data(flag='val')
+        test_data, test_loader = self._get_data(flag='test')
 
-        # Extract predictions
-        self.list_pred = []
-        for i in range(self.num_models):
-            pred_tmp = (self.list_pred_sc[i] > self.list_thresholds[i]).astype(int)
-            new_gt,new_pred = adjustment(self.gtruth, pred_tmp)
-            self.list_pred.append(new_pred)
-        self.gtruth = new_gt
+        model_path = os.path.join(self.args.checkpoints, setting)
+        # Load the model
+        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+        assert os.path.exists(model_path), "cannot find {} model path".format(model_path)
+            
+        # Get Train data
+        train_inputs, train_preds, train_trues = self.test_model(train_data, train_loader)
 
-        # Extract distance-to-threshold confidence
-        self.dist_conf=[]
-        for length in range(self.len_data):
-            dist_tmp = []
-            for i in range(self.num_models):
-                dist_tmp.append(self.list_pred_sc[i][length] - self.list_thresholds[i])
-            self.dist_conf.append(dist_tmp)
-        
-        # Gym settings
-        self.action_space = spaces.Discrete(self.num_models) 
-        # state_dim is 4 , each corresponds to scaled_sc, scaled_thresholds, pred, dist_conf 
-        self.observation_space = spaces.Box(low=0, high=1, shape=(4, ), dtype=np.float32)
-        self.seed()
-        self.reset()
+        # Get Validation data
+        vali_inputs, vali_preds, vali_trues = self.test_model(vali_data, vali_loader)
 
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
+        # Get Test data
+        test_inputs, test_preds, test_trues = self.test_model(test_data, test_loader)
+            
+        bm_train_preds = {}
+        bm_vali_preds = {}
+        bm_test_preds = {}
 
-    def render(self):
-        pass
+        for model_idx in range(self.args.n_learner):
+            bm_train_preds['Learner_' + str(model_idx)] = train_preds[model_idx]
+            bm_vali_preds['Learner_' + str(model_idx)] = vali_preds[model_idx]
+            bm_test_preds['Learner_' + str(model_idx)] = test_preds[model_idx]
 
-class TrainEnvOffline_dist_conf(EnvOffline_dist_conf):
-    '''The training environment in offline setting.
+        # save rl data
+        if not os.path.exists(f'{model_path}/dataset'):
+            os.makedirs(f'{model_path}/dataset')
 
-        list_gtruth: the list of ground truth labels (each one being 1D numpy array) of the 
-                    testing data by each models.'''
+        if not os.path.exists(f'{model_path}/rl_bm'):
+            os.makedirs(f'{model_path}/rl_bm')
 
-    def __init__(self, list_pred_sc, list_thresholds, list_gtruth):
-        super().__init__(list_pred_sc, list_thresholds, list_gtruth)
-    
-    def reset(self):
-        self.time_step = 0 # Reset the pointer to the beginning of the testing data
-        self.time_now = time.time()
-        self.done = False
-        return self._get_state()
+        with open(f'{model_path}/dataset/input_train_x.npy', 'wb') as f:
+            np.save(f, train_inputs)
+        with open(f'{model_path}/dataset/input_train_y.npy', 'wb') as f:
+            np.save(f, train_trues)
+        with open(f'{model_path}/dataset/input_vali_x.npy', 'wb') as f:
+            np.save(f, vali_inputs)
+        with open(f'{model_path}/dataset/input_vali_y.npy', 'wb') as f:
+            np.save(f, vali_trues)
+        with open(f'{model_path}/dataset/input_test_x.npy', 'wb') as f:
+            np.save(f, test_inputs)
+        with open(f'{model_path}/dataset/input_test_y.npy', 'wb') as f:
+            np.save(f, test_trues)
 
-    def step(self, action):
-        '''Return:
-            observation: the current state of the environment;
-            reward: the reward of the action;
-            done: whether the episode is over;'''
-        # Get the current state
-        observation = self._get_state(action)
-        # Get the reward
-        reward=self._get_reward(observation)
-        # Check whether the episode is over
-        self.time_step = self.time_step + 1
-        self.done = self.time_step >= self.len_data
-        return observation, reward, self.done, {}
+        with open(f'{model_path}/rl_bm/bm_train_preds.npz', 'wb') as f:
+            np.savez(f, **bm_train_preds)
+        with open(f'{model_path}/rl_bm/bm_vali_preds.npz', 'wb') as f:
+            np.savez(f, **bm_vali_preds)
+        with open(f'{model_path}/rl_bm/bm_test_preds.npz', 'wb') as f:
+            np.savez(f, **bm_test_preds)
 
-    def _get_state(self,action=None):
+        # RL training
+        train_env = OpenNetEnv(model_path, self.args.n_learner, mode="train")
 
-        '''Return:
-            observation: the current state of the environment.'''
+        n_actions = self.args.n_learner
+        action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
-        if self.time_step==0: # If the pointer is at the beginning of the testing data
-            action=random.randint(0,self.num_models-1) # Randomly select a model
+        model = DDPG("MlpPolicy", train_env, action_noise=action_noise, verbose=1)
 
-        # Get the current state
-        observation = np.zeros(4) # 4 dims - scaled scores, scaled thresholds, labels, dist_conf
-        observation[0] = self.list_pred_sc[action][self.time_step]
-        observation[1] = self.list_thresholds[action]
-        observation[2] = self.list_pred[action][self.time_step]
-        observation[3] = self.dist_conf[self.time_step][action]
+        model.learn(total_timesteps=608, progress_bar=True)
 
-        return observation
+        # RL validation
+        vali_env = OpenNetEnv(model_path, self.args.n_learner, mode="vali")
+        mse_loss, mae_loss, mean_reward, std_reward = evaluate_policy(model, vali_env, n_eval_episodes=1)
+        print(f"\nRL Validation\nmean_reward={mean_reward:.2f} +/- {std_reward:.2f}\nMSE={mse_loss:.3f}, MAE={mae_loss:.3f}")
 
-    def _get_reward(self,observation):
-        '''Return:
-            reward: the reward of the action.'''
-        reward = 0
-        # Get the reward confusion matrix
-        if self.gtruth[self.time_step]==1: # If the ground truth is 1 anomaly
-            if observation[2]==1: # If the model predicts 1 anomaly correctly - True Positive (TP)
-                reward = reward + 1
-            else: # If the model predicts 0 normal incorrectly - False Negative (FN)
-                reward = reward + (-1.5)
-        else: # If the ground truth is 0 normal
-            if observation[2]==1: # If the model predicts 1 anomaly incorrectly - False Positive (FP)
-                reward = reward + (-0.6)
-            else: # If the model predicts 0 normal correctly - True Negative (TN)
-                reward = reward + 0.01
+        model.save(f"{model_path}/rl_model")
 
-        # # Get the reward distance threshold
-        # distance = abs(1 - observation[3])
-        # reward_distance_conf = 1 - (1 / abs((1 - observation[3]))) if distance > 0 else 1
-        
-        # reward = reward + reward_distance_conf
-        return reward
+        del model, train_env, vali_env
 
-def eval_model(model,env):
-    '''Evaluate the model on the environment.
+        # RL testing
+        model = DDPG.load(f"{model_path}/rl_model")
 
-        model: the model to be evaluated;
-        env: the environment to be evaluated on.
-        
-        Return:
-            precision: the precision of the model;
-            recall: the recall of the model;
-            f1: the f1 score of the model;
-            conf_matrix: the confusion matrix of the model, comparing it with the ground truth;
-            preds: the list of predictions of the model.'''
-
-    # The ground truth labels
-    gtruth = env.gtruth
-    # Reset the environment
-    observation = env.reset()
-
-    # Evaluate the model - get predicted labels and total reward
-    preds = []
-    while True:
-        action = model.predict(observation)
-        observation, reward, done, _ = env.step(action[0]) # action[0] is the index of the action, action is a tuple
-        preds.append(observation[2])
-        if done:
-            break
-    accuracy=accuracy_score(gtruth,preds)
-    prec=precision_score(gtruth,preds,pos_label=1)
-    rec=recall_score(gtruth,preds,pos_label=1)
-    f1=f1_score(gtruth,preds,pos_label=1)
-    conf_matrix=confusion_matrix(gtruth,preds,labels=[0,1])
-    return accuracy,prec,rec,f1,conf_matrix, preds, reward
+        test_env = OpenNetEnv(model_path, self.args.n_learner, mode="test")
+        mse_loss, mae_loss, mean_reward, std_reward = evaluate_policy(model, test_env, n_eval_episodes=1)
+        print(f"\nRL Test\nmean_reward={mean_reward:.2f} +/- {std_reward:.2f}\nMSE={mse_loss:.3f}, MAE={mae_loss:.3f}")

@@ -468,140 +468,110 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         return
 
     def set_rl_data(self, setting):
-        train_source_raw, train_trues, train_arr_preds, _ = self._forward_rl(setting, 'train')
-        vali_source_raw, vali_trues, vali_arr_preds, _ = self._forward_rl(setting, 'val')
-        test_source_raw, test_trues, test_arr_preds, _ = self._forward_rl(setting, 'test')
+        train_data, train_loader = self._get_data(flag='train')
+        vali_data, vali_loader = self._get_data(flag='val')
+        test_data, test_loader = self._get_data(flag='test')
 
-        train_source = np.concatenate(train_source_raw, axis=0)
-        vali_source = np.concatenate(vali_source_raw, axis=0)
-        test_source = np.concatenate(test_source_raw, axis=0)
+        model_path = os.path.join(self.args.checkpoints, setting)
+        # Load the model
+        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+        assert os.path.exists(model_path), "cannot find {} model path".format(model_path)
 
-        train_trues = np.concatenate(train_trues, axis=0)
-        vali_trues = np.concatenate(vali_trues, axis=0)
-        test_trues = np.concatenate(test_trues, axis=0)
+        train_inputs, train_preds, train_trues = self._forward_rl(train_data, train_loader, 10)
+        vali_inputs, vali_preds, vali_trues = self._forward_rl(vali_data, vali_loader, 10)
+        test_inputs, test_preds, test_trues = self._forward_rl(test_data, test_loader)
 
-        train_bm_preds = {}
-        vali_bm_preds = {}
-        test_bm_preds = {}
+        bm_train_preds = {}
+        bm_vali_preds = {}
+        bm_test_preds = {}
 
-        n_learner = self.args.n_learner
-        for i in range(n_learner):
-            train_bm_preds[f'Learner_{i}'] = train_arr_preds[i]
-            vali_bm_preds[f'Learner_{i}'] = vali_arr_preds[i]
-            test_bm_preds[f'Learner_{i}'] = test_arr_preds[i]
+        for model_idx in range(self.args.n_learner):
+            bm_train_preds['Learner_' + str(model_idx)] = train_preds[model_idx]
+            bm_vali_preds['Learner_' + str(model_idx)] = vali_preds[model_idx]
+            bm_test_preds['Learner_' + str(model_idx)] = test_preds[model_idx]
 
-        checkpoint_path = './checkpoints/' + setting
+        # save rl data
+        if not os.path.exists(f'{model_path}/dataset'):
+            os.makedirs(f'{model_path}/dataset')
 
-        if not os.path.exists(checkpoint_path + '/dataset/'):
-            os.makedirs(checkpoint_path + '/dataset/')
+        if not os.path.exists(f'{model_path}/rl_bm'):
+            os.makedirs(f'{model_path}/rl_bm')
 
-        if not os.path.exists(checkpoint_path + '/rl_bm/'):
-            os.makedirs(checkpoint_path + '/rl_bm/')
-
-        with open('./checkpoints/' + setting + '/dataset/input_train_x.npy', 'wb') as f:
-            np.save(f, train_source)
-
-        with open('./checkpoints/' + setting + '/dataset/input_train_y.npy', 'wb') as f:
+        with open(f'{model_path}/dataset/input_train_x.npy', 'wb') as f:
+            np.save(f, train_inputs)
+        with open(f'{model_path}/dataset/input_train_y.npy', 'wb') as f:
             np.save(f, train_trues)
-
-        with open('./checkpoints/' + setting + '/dataset/input_vali_x.npy', 'wb') as f:
-            np.save(f, vali_source)
-
-        with open('./checkpoints/' + setting + '/dataset/input_vali_y.npy', 'wb') as f:
+        with open(f'{model_path}/dataset/input_vali_x.npy', 'wb') as f:
+            np.save(f, vali_inputs)
+        with open(f'{model_path}/dataset/input_vali_y.npy', 'wb') as f:
             np.save(f, vali_trues)
-
-        with open('./checkpoints/' + setting + '/dataset/input_test_x.npy', 'wb') as f:
-            np.save(f, test_source)
-
-        with open('./checkpoints/' + setting + '/dataset/input_test_y.npy', 'wb') as f:
+        with open(f'{model_path}/dataset/input_test_x.npy', 'wb') as f:
+            np.save(f, test_inputs)
+        with open(f'{model_path}/dataset/input_test_y.npy', 'wb') as f:
             np.save(f, test_trues)
 
-        with open('./checkpoints/' + setting + '/rl_bm/bm_train_preds.npz', 'wb') as f:
-            np.savez(f, **train_bm_preds)
-
-        with open('./checkpoints/' + setting + '/rl_bm/bm_vali_preds.npz', 'wb') as f:
-            np.savez(f, **vali_bm_preds)
-
-        with open('./checkpoints/' + setting + '/rl_bm/bm_test_preds.npz', 'wb') as f:
-            np.savez(f, **test_bm_preds)
+        with open(f'{model_path}/rl_bm/bm_train_preds.npz', 'wb') as f:
+            np.savez(f, **bm_train_preds)
+        with open(f'{model_path}/rl_bm/bm_vali_preds.npz', 'wb') as f:
+            np.savez(f, **bm_vali_preds)
+        with open(f'{model_path}/rl_bm/bm_test_preds.npz', 'wb') as f:
+            np.savez(f, **bm_test_preds)
 
         return
-
-    def _forward_rl(self, setting, flag):
-        _, data_loader = self._get_data(flag)
-        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
-
-        source = []
-        preds = []
-        # make an array of empty array with size of n_learner
-        arr_preds = [[] for _ in range(self.args.n_learner)]
+    
+    def _forward_rl(self, flag_data, flag_loader, epoch=1):
+        inputs = []
         trues = []
+        preds = []
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(data_loader):
-                batch_x = batch_x.float().to(self.device)
-                batch_y = batch_y.float().to(self.device)
+            for _ in range(epoch):
+                for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
+                    batch_x = batch_x.float().to(self.device)
+                    batch_y = batch_y.float().to(self.device)
 
-                batch_x_mark = batch_x_mark.float().to(self.device)
-                batch_y_mark = batch_y_mark.float().to(self.device)
+                    batch_x_mark = batch_x_mark.float().to(self.device)
+                    batch_y_mark = batch_y_mark.float().to(self.device)
 
-                # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if self.args.output_attention:
-                            if self.args.use_multi_gpu and self.args.use_gpu:
-                                outputs, attns, arr_outputs, arr_attns = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                            else:
+                    # decoder input
+                    dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                    dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                    # encoder - decoder
+                    if self.args.use_amp:
+                        with torch.cuda.amp.autocast():
+                            if self.args.output_attention:
                                 outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                        else:
-                            if self.args.use_multi_gpu and self.args.use_gpu:
-                                outputs, arr_outputs = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                             else:
                                 outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if self.args.output_attention:
-                        if self.args.use_multi_gpu and self.args.use_gpu:
-                            outputs, attns, arr_outputs, arr_attns = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                        else:
-                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                     else:
-                        if self.args.use_multi_gpu and self.args.use_gpu:
-                            outputs, arr_outputs = self.model.module.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        if self.args.output_attention:
+                            outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                         else:
                             outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                            
 
-                f_dim = -1 if self.args.features == 'MS' else 0
-                outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                    f_dim = -1 if self.args.features == 'MS' else 0
 
-                batch_x = batch_x.detach().cpu().numpy()
-                outputs = outputs.detach().cpu().numpy()
-                batch_y = batch_y.detach().cpu().numpy()
+                    for i in range(self.args.n_learner):
+                        arr_outputs[i] = arr_outputs[i][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy()
+                    batch_x = batch_x.detach().cpu().numpy()
+                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                    batch_y = batch_y.detach().cpu().numpy()
 
-                for i in range(self.args.n_learner):
-                    arr_outputs[i] = arr_outputs[i].detach().cpu().numpy()
+                    arr_outputs = np.array(arr_outputs)
+                    input = batch_x
+                    true = batch_y
 
-                raw = batch_x
-                pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
-                arr_pred = arr_outputs
-                true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
+                    preds.append(arr_outputs)
+                    inputs.append(input)
+                    trues.append(true)
 
-                source.append(raw)
-                preds.append(pred)
-                trues.append(true)
+            preds = np.concatenate(preds, axis=1)
+            inputs = np.concatenate(inputs)
+            trues = np.concatenate(trues)
 
-                for i in range(self.args.n_learner):
-                    arr_preds[i].append(arr_pred[i])
-
-        for i in range(self.args.n_learner):
-            arr_preds[i] = np.concatenate(arr_preds[i], axis=0)
-
-        return source, trues, arr_preds, preds
+            return inputs, preds, trues
     
 
     def predict(self, setting, load=False):
