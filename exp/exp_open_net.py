@@ -308,7 +308,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = slow_out[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss += ssl_loss_v2(slow_out, batch_y, slow_mark, s1, s2)
+                    loss += ssl_loss_v2(slow_out, batch_x, slow_mark, s1, s2)
 
                     if(need_update):
                         slow_model_optim.zero_grad()
