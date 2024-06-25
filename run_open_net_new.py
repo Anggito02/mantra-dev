@@ -18,7 +18,7 @@ def main():
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
     parser.add_argument('--model_id', type=str, required=False, default='ILI_36_24', help='model id')
-    parser.add_argument('--model', type=str, required=False, default='iTransformer',
+    parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
                         help='slow model name, options: [Autoformer, Informer, Transformer, etc]')

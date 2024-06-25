@@ -1,7 +1,6 @@
 import gym
 from gym import spaces
 import numpy as np
-
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 class OpenNetEnv(gym.Env):
@@ -17,12 +16,12 @@ class OpenNetEnv(gym.Env):
         self.X = self.data[0]
         self.y = self.data[1]
         self.preds = self.data[2]
-        self.n_steps = self.X.shape[0]
+        self.n_steps = len(self.X)
 
         # Define action and observation space
         # They must be gym.spaces objects
-        self.action_space = spaces.Box(low=-1, high=1, shape=(self.preds.shape[2],), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=self.X.shape[1:], dtype=np.float32)
+        self.action_space = spaces.Box(low=0, high=1, shape=(self.n_learner,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=self.X.shape[0], dtype=np.float32)
 
     def __getdata__(self):
         mode_X = np.load(f'{self.data_path}/dataset/input_{self.mode}_x.npy')
@@ -35,6 +34,10 @@ class OpenNetEnv(gym.Env):
             preds = np.expand_dims(preds, axis=1)
             merged_preds.append(preds)
         merged_preds = np.concatenate(merged_preds, axis=1)
+
+        mode_X = mode_X.reshape(-1)
+        mode_y = mode_y.reshape(-1)
+        merged_preds = merged_preds.reshape(-1, merged_preds.shape[1])
         
         return [mode_X, mode_y, merged_preds]
 
@@ -43,14 +46,14 @@ class OpenNetEnv(gym.Env):
         return self.X[self.current_step]
 
     def step(self, action):
-        # Ensure the action is a scalar
-        action = action[0] if isinstance(action, np.ndarray) else action
+        # Ensure the action is within the expected range
+        action = np.clip(action, 0, 1)
         
-        # Map continuous action to discrete action
-        discrete_action = int(np.clip(np.round((action + 1) / 2 * (self.preds.shape[1] - 1)), 0, self.preds.shape[1] - 1))
+        # Normalize the weights to sum to 1
+        weights = action / np.sum(action)
 
-        # Select the prediction based on the action
-        selected_pred = self.preds[self.current_step, discrete_action]
+        # Combine predictions using the weights
+        selected_pred = np.sum(self.preds[self.current_step] * weights[:, 1], axis=0)
 
         # Calculate reward using MSE and MAE
         mse = mean_squared_error(self.y[self.current_step].flatten(), selected_pred.flatten())
