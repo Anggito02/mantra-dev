@@ -1,11 +1,10 @@
 import gym
 from gym import spaces
 import numpy as np
-
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 class OpenNetEnv(gym.Env):
-    def __init__(self, data_path, n_learner, mode='train'):
+    def __init__(self, data_path, n_learner=3, mode='train'):
         super(OpenNetEnv, self).__init__()
         self.data_path = data_path
         self.n_learner = n_learner
@@ -17,12 +16,12 @@ class OpenNetEnv(gym.Env):
         self.X = self.data[0]
         self.y = self.data[1]
         self.preds = self.data[2]
-        self.n_steps = len(self.X.shape[0])
+        self.n_steps = len(self.X)
 
         # Define action and observation space
         # They must be gym.spaces objects
-        self.action_space = spaces.Discrete(self.preds.shape[1])
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=self.X.shape[1:], dtype=np.float64)
+        self.action_space = spaces.Box(low=0, high=1, shape=(self.preds.shape[1],), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.X.shape[0],), dtype=np.float32)
 
     def __getdata__(self):
         mode_X = np.load(f'{self.data_path}/dataset/input_{self.mode}_x.npy')
@@ -35,24 +34,32 @@ class OpenNetEnv(gym.Env):
             preds = np.expand_dims(preds, axis=1)
             merged_preds.append(preds)
         merged_preds = np.concatenate(merged_preds, axis=1)
+
+        mode_X = mode_X.reshape(-1)
+        mode_y = mode_y.reshape(-1)
+        merged_preds = merged_preds.reshape(-1, merged_preds.shape[1])
         
         return [mode_X, mode_y, merged_preds]
 
     def reset(self):
         self.current_step = 0
-        return self.X[self.current_step]
+        obs = self.X[self.current_step]
+        assert self.observation_space.contains(obs), "Observation out of bounds!"  # Validate observation
+        return obs
 
     def step(self, action):
-        # Validate the action
-        if not self.action_space.contains(action):
-            raise ValueError(f"Invalid action: {action}")
+        # Ensure the action is within the expected range
+        action = np.clip(action, 0, 1)
+        
+        # Normalize the weights to sum to 1
+        weights = action / np.sum(action)
 
-        # Select the prediction based on the action
-        selected_pred = self.pred[self.current_step, action]
+        # Combine predictions using the weights
+        selected_pred = np.sum(self.preds[self.current_step] * weights[:, 1], axis=0)
 
         # Calculate reward using MSE and MAE
-        mse = mean_squared_error(self.Y[self.current_step].flatten(), selected_pred.flatten())
-        mae = mean_absolute_error(self.Y[self.current_step].flatten(), selected_pred.flatten())
+        mse = mean_squared_error(self.y[self.current_step].flatten(), selected_pred.flatten())
+        mae = mean_absolute_error(self.y[self.current_step].flatten(), selected_pred.flatten())
         reward = - (mse + mae)  # Negative because we want to minimize the error
 
         self.current_step += 1
@@ -62,6 +69,9 @@ class OpenNetEnv(gym.Env):
             next_state = self.X[self.current_step - 1]
         else:
             next_state = self.X[self.current_step]
+        
+        # Validate next observation
+        assert self.observation_space.contains(next_state), "Next observation out of bounds!"
 
         info = {
             'mse': mse,
