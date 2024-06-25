@@ -1,9 +1,8 @@
 import argparse
 import os
 import torch
-from exp.exp_open_net import Exp_Main_DualmodE3K
-from exp.opt_urt import Opt_URT
-from exp.opt_rl import OPT_RL_OpenNet
+from exp.exp_fast_open_net import Exp_OpenNet_Fast
+from exp.opt_rl_open_net import OPT_RL_OpenNet
 
 import warnings
 import random
@@ -18,7 +17,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='36_60', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='ILI_36_24', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -38,7 +37,7 @@ def main():
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=36, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=18, help='start token length')
-    parser.add_argument('--pred_len', type=int, default=48, help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=24, help='prediction sequence length')
 
     # model define
     parser.add_argument('--bucket_size', type=int, default=4, help='for Reformer')
@@ -73,14 +72,14 @@ def main():
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--anomaly', type=float, default=10.0, help='anomaly limit')
-    parser.add_argument('--des', type=str, default='Exp', help='exp description')
+    parser.add_argument('--des', type=str, default='normal_0', help='exp description')
     parser.add_argument('--loss', type=str, default='MSE', help='loss function')
     parser.add_argument('--corr_penalty', type=float, default=0.5, help='correlation penalty for negative correlation loss function')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     
     # Slow Learner
-    parser.add_argument('--use_slow_learner', type=int, default=1, help='use slow learner')
+    parser.add_argument('--use_slow_learner', action='store_true', help='use slow learner', default=True)
 
     # GPU
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
@@ -88,6 +87,11 @@ def main():
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
     parser.add_argument('--fix_seed', type=str, default='2021,2022,2023', help='Fix seed for iterations')
+
+    # RL
+    parser.add_argument('--is_training_fastlearner', type=int, default=1, help='training fast learner')
+    parser.add_argument('--is_training_rl', type=int, default=1, help='training rl')
+    parser.add_argument('--model_idx', type=int, default=0, help='model index')
 
     # parser.add_argument('--num_fastlearners', type=int, default=2, help='number of fast_learner')
 
@@ -122,142 +126,114 @@ def main():
 
     
     # Exp = Exp_Main_Dualmod
-    Exp = Exp_Main_DualmodE3K
+    Exp = Exp_OpenNet_Fast
 
     if args.is_training:
         for ii in range(args.itr):
-            
-            fix_seed=args.fix_seed.split(",")
-            fix_seed=[int(i) for i in fix_seed]
-            random.seed(fix_seed[ii])
-            torch.manual_seed(fix_seed[ii])
-            np.random.seed(fix_seed[ii])
-            torch.cuda.manual_seed(fix_seed[ii])
-            torch.backends.cudnn.deterministic = True
-            os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
+            if args.is_training_fastlearner:
+                fix_seed=args.fix_seed.split(",")
+                fix_seed=[int(i) for i in fix_seed]
+                random.seed(fix_seed[ii])
+                torch.manual_seed(fix_seed[ii])
+                np.random.seed(fix_seed[ii])
+                torch.cuda.manual_seed(fix_seed[ii])
+                torch.backends.cudnn.deterministic = True
+                os.environ['PYTHONHASHSEED'] = str(fix_seed[ii])
 
-            # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.e_layers,
-                args.d_layers,
-                args.des)
+                # setting record of experiments
+                setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
+                    args.model_id,
+                    args.model,
+                    args.data,
+                    args.features,
+                    args.seq_len,
+                    args.label_len,
+                    args.pred_len,
+                    args.d_model,
+                    args.e_layers,
+                    args.d_layers,
+                    args.des)
 
-            exp = Exp(args)  # set experiments
-            # opt = OptURT(args)  # set experiments
+                exp = Exp(args)  # set experiments
+                # opt = OptURT(args)  # set experiments
 
-            print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # exp.train(setting)
+                print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+                # exp.train(setting)
 
-            # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # opt.train_urt(setting)
+                # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+                # opt.train_urt(setting)
 
-            # Testing only Mantra
-            print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # exp.test(setting)
+                # Testing only Mantra
+                print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                # exp.test(setting)
 
-            print('>>>>>>>set rl data : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.set_rl_data(setting)
+                gc.collect()
+                torch.cuda.empty_cache()
 
-            gc.collect()
-            torch.cuda.empty_cache()
+                # RL Experiment
+                # print('>>>>>>>train RL : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                # exp.train_rl(setting)
 
-            # RL Experiment
-            # print('>>>>>>>train RL : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # exp.train_rl(setting)
+                # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                # opt.test2(setting)
 
-            # print('>>>>>>>testing Model+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # opt.test2(setting)
+                # if args.do_predict:
+                #     print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                #     exp.predict(setting, True)
 
-            # if args.do_predict:
-            #     print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            #     exp.predict(setting, True)
+                del exp
+                gc.collect()
+                torch.cuda.empty_cache()
 
-            del exp
-            gc.collect()
-            torch.cuda.empty_cache()
+        if args.is_training_rl:
+            # OptRL = OPT_RL_Mantra(args)
+            # for ii in range(args.itr):
+            OptURT = OPT_RL_OpenNet
 
-        # OptRL = OPT_RL_Mantra(args)
-        # for ii in range(args.itr):
-        OptURT = Opt_URT
+            for ii in range(args.itr):
+                setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
+                    args.model_id,
+                    args.model,
+                    args.data,
+                    args.features,
+                    args.seq_len,
+                    args.label_len,
+                    args.pred_len,
+                    args.d_model,
+                    args.e_layers,
+                    args.d_layers,
+                    args.des)
+                
+                opt = OptURT(args)  # set experiments
 
-        for ii in range(args.itr):
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.e_layers,
-                args.d_layers,
-                args.des)
-            
-            opt = OptURT(args)  # set experiments
+                print('>>>>>>>start training+testing RL: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+                opt.opt_rl_train(setting)
 
-            print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            # opt.train_urt(setting)
+                gc.collect()
+                torch.cuda.empty_cache()
+            #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
+            #         args.model_id,
+            #         args.model,
+            #         args.data,
+            #         args.features,
+            #         args.seq_len,
+            #         args.label_len,
+            #         args.pred_len,
+            #         args.d_model,
+            #         args.e_layers,
+            #         args.d_layers,
+            #         args.des)
 
-            print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            # opt.test2(setting)
+            #     # exp = Exp(args)  # set experiments
+            #     # opt = OptURT(args)  # set experiments
 
-            gc.collect()
-            torch.cuda.empty_cache()
-        #     setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
-        #         args.model_id,
-        #         args.model,
-        #         args.data,
-        #         args.features,
-        #         args.seq_len,
-        #         args.label_len,
-        #         args.pred_len,
-        #         args.d_model,
-        #         args.e_layers,
-        #         args.d_layers,
-        #         args.des)
+            #     # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+            #     # opt.train_urt(setting)
 
-        #     # exp = Exp(args)  # set experiments
-        #     # opt = OptURT(args)  # set experiments
+            #     # print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            #     # opt.test2(setting)
 
-        #     # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-        #     # opt.train_urt(setting)
-
-        #     # print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-        #     # opt.test2(setting)
-
-        #     torch.cuda.empty_cache()
-
-        OptRL = OPT_RL_OpenNet
-        for ii in range(args.itr):
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.e_layers,
-                args.d_layers,
-                args.des)
-            
-            optRL = OptRL(args)  # set experiments
-
-            print('>>>>>>>start training RL: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            optRL.train_rl(setting)
-
-            gc.collect()
-            torch.cuda.empty_cache()
+            #     torch.cuda.empty_cache()
     else:
         ii = 0
         setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_el{}_dl{}_{}'.format(args.model_id,
