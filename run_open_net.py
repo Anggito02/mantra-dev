@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     
     # Slow Learner
-    parser.add_argument('--use_slow_learner', action='store_true', help='use slow learner', default=True)
+    parser.add_argument('--use_slow_learner', type=int, default=1, help='use slow learner')
 
     # GPU
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
