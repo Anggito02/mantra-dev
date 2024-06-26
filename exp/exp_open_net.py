@@ -8,8 +8,6 @@ from utils.slowloss import SlowLearnerLoss, ssl_loss, ssl_loss_v2
 
 from utils.tools import visual
 
-from models.ddpg import Actor, Critic
-
 import pandas as pd
 import numpy as np
 import torch
@@ -23,6 +21,7 @@ import time
 import warnings
 import numpy as np
 
+from tqdm import trange
 from scipy.special import softmax
 from sktime.performance_metrics.forecasting import \
     mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
@@ -477,8 +476,11 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
         assert os.path.exists(model_path), "cannot find {} model path".format(model_path)
 
+        print("Set training data...\n")
         train_inputs, train_preds, train_trues = self._forward_rl(train_data, train_loader, 10)
+        print("Set validation data...\n")
         vali_inputs, vali_preds, vali_trues = self._forward_rl(vali_data, vali_loader, 10)
+        print("Set testing data...\n")
         test_inputs, test_preds, test_trues = self._forward_rl(test_data, test_loader)
 
         bm_train_preds = {}
@@ -526,7 +528,7 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for _ in range(epoch):
+            for _ in trange(epoch, desc='[Get Data Epoch]'):
                 for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
                     batch_x = batch_x.float().to(self.device)
                     batch_y = batch_y.float().to(self.device)
