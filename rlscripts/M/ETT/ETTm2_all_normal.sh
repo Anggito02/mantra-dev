@@ -5,7 +5,7 @@ python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/ETT/ \
     --data_path ETTm2.csv \
-    --model_id ETTh1_96_96 \
+    --model_id ETTm2_96_96 \
     --model B6iFast \
     --data custom \
     --features M \
@@ -32,7 +32,7 @@ python -u run_open_net.py \
     --checkpoints ./checkpoints/
 
 python -u run_rlmc.py \
-    --model_id ETTh1_96_96 \
+    --model_id ETTm2_96_96 \
     --model B6iFast \
     --data custom \
     --features M \

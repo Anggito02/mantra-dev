@@ -477,9 +477,9 @@ class Exp_Main_DualmodE3K(Exp_Basic):
         assert os.path.exists(model_path), "cannot find {} model path".format(model_path)
 
         print("Set training data...\n")
-        train_inputs, train_preds, train_trues = self._forward_rl(train_data, train_loader, 10)
+        train_inputs, train_preds, train_trues = self._forward_rl(train_data, train_loader)
         print("Set validation data...\n")
-        vali_inputs, vali_preds, vali_trues = self._forward_rl(vali_data, vali_loader, 10)
+        vali_inputs, vali_preds, vali_trues = self._forward_rl(vali_data, vali_loader)
         print("Set testing data...\n")
         test_inputs, test_preds, test_trues = self._forward_rl(test_data, test_loader)
 
@@ -521,53 +521,52 @@ class Exp_Main_DualmodE3K(Exp_Basic):
 
         return
     
-    def _forward_rl(self, flag_data, flag_loader, epoch=1):
+    def _forward_rl(self, flag_data, flag_loader):
         inputs = []
         trues = []
         preds = []
 
         self.model.eval()
         with torch.no_grad():
-            for _ in trange(epoch, desc='[Get Data Epoch]'):
-                for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
-                    batch_x = batch_x.float().to(self.device)
-                    batch_y = batch_y.float().to(self.device)
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(flag_loader):
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
 
-                    batch_x_mark = batch_x_mark.float().to(self.device)
-                    batch_y_mark = batch_y_mark.float().to(self.device)
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
 
-                    # decoder input
-                    dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                    dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                    # encoder - decoder
-                    if self.args.use_amp:
-                        with torch.cuda.amp.autocast():
-                            if self.args.output_attention:
-                                outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                            else:
-                                outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    else:
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                # encoder - decoder
+                if self.args.use_amp:
+                    with torch.cuda.amp.autocast():
                         if self.args.output_attention:
                             outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
                         else:
                             outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                else:
+                    if self.args.output_attention:
+                        outputs, attns, arr_outputs, arr_attns = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                    f_dim = -1 if self.args.features == 'MS' else 0
+                    else:
+                        outputs, arr_outputs = self.model.forward(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                    for i in range(self.args.n_learner):
-                        arr_outputs[i] = arr_outputs[i][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy()
-                    batch_x = batch_x.detach().cpu().numpy()
-                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    batch_y = batch_y.detach().cpu().numpy()
+                f_dim = -1 if self.args.features == 'MS' else 0
 
-                    arr_outputs = np.array(arr_outputs)
-                    input = batch_x
-                    true = batch_y
+                for i in range(self.args.n_learner):
+                    arr_outputs[i] = arr_outputs[i][:, -self.args.pred_len:, f_dim:].detach().cpu().numpy()
+                batch_x = batch_x.detach().cpu().numpy()
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y = batch_y.detach().cpu().numpy()
 
-                    preds.append(arr_outputs)
-                    inputs.append(input)
-                    trues.append(true)
+                arr_outputs = np.array(arr_outputs)
+                input = batch_x
+                true = batch_y
+
+                preds.append(arr_outputs)
+                inputs.append(input)
+                trues.append(true)
 
             preds = np.concatenate(preds, axis=1)
             inputs = np.concatenate(inputs)
