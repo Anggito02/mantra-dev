@@ -475,6 +475,13 @@ class Opt_URT(Exp_Basic):
         f.write('\n')
         f.close()
 
+        result_path = './checkpoints/' + setting + '/testing_results/'
+        with open(result_path + 'result_mantra.txt', 'a') as f:
+            f.write(setting + '  \n')
+            f.write('mse:{}, mae:{}'.format(mse, mae))
+            f.write('\n')
+            f.write('\n')
+
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
