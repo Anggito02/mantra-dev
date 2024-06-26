@@ -17,7 +17,7 @@ def main():
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='36_60', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, default='ILI_36_24', help='model id')
     parser.add_argument('--model', type=str, required=False, default='B6iFast',
                         help='model name, options: [Autoformer, Informer, Transformer]')
     parser.add_argument('--slow_model', type=str, required=False, default='S1iSlow',
@@ -37,7 +37,7 @@ def main():
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=36, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=18, help='start token length')
-    parser.add_argument('--pred_len', type=int, default=48, help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=24, help='prediction sequence length')
 
     # model define
     parser.add_argument('--bucket_size', type=int, default=4, help='for Reformer')
@@ -72,7 +72,7 @@ def main():
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--anomaly', type=float, default=10.0, help='anomaly limit')
-    parser.add_argument('--des', type=str, default='Exp', help='exp description')
+    parser.add_argument('--des', type=str, default='normal_0_new', help='exp description')
     parser.add_argument('--loss', type=str, default='MSE', help='loss function')
     parser.add_argument('--corr_penalty', type=float, default=0.5, help='correlation penalty for negative correlation loss function')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
@@ -153,14 +153,14 @@ def main():
             # opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            exp.train(setting)
+            # exp.train(setting)
 
             # print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             # opt.train_urt(setting)
 
             # Testing only Mantra
             print('>>>>>>>testing only mantra : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.test(setting)
+            # exp.test(setting)
 
             print('>>>>>>>set rl data : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.set_rl_data(setting)
@@ -204,10 +204,10 @@ def main():
             opt = OptURT(args)  # set experiments
 
             print('>>>>>>>start training URT: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-            opt.train_urt(setting)
+            # opt.train_urt(setting)
 
             print('>>>>>>>testing FastSlow+URT : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            opt.test2(setting)
+            # opt.test2(setting)
 
             gc.collect()
             torch.cuda.empty_cache()
