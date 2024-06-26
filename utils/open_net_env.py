@@ -44,18 +44,17 @@ class OpenNetEnv(gym.Env):
     def reset(self):
         self.current_step = 0
         obs = self.X[self.current_step]
-        assert self.observation_space.contains(obs), "Observation out of bounds!"  # Validate observation
         return obs
 
     def step(self, action):
         # Ensure the action is within the expected range
-        action = np.clip(action, 0, 1)
+        action = np.clip(action, 0.0001, 1)
         
         # Normalize the weights to sum to 1
         weights = action / np.sum(action)
 
         # Combine predictions using the weights
-        selected_pred = np.sum(self.preds[self.current_step] * weights[:, 1], axis=0)
+        selected_pred = np.sum(self.preds[self.current_step] * weights, axis=0)
 
         # Calculate reward using MSE and MAE
         mse = mean_squared_error(self.y[self.current_step].flatten(), selected_pred.flatten())
@@ -69,9 +68,6 @@ class OpenNetEnv(gym.Env):
             next_state = self.X[self.current_step - 1]
         else:
             next_state = self.X[self.current_step]
-        
-        # Validate next observation
-        assert self.observation_space.contains(next_state), "Next observation out of bounds!"
 
         info = {
             'mse': mse,

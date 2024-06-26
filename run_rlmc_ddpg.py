@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--e_layers', type=int, default=3, help='num of encoder layers')
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
-    parser.add_argument('--des', type=str, default='normal_0', help='description of model')
+    parser.add_argument('--des', type=str, default='normal_0_new', help='description of model')
 
     parser.add_argument('--n_learner', type=int, default=1, help='num of learners')
     args = parser.parse_args()
@@ -48,8 +48,12 @@ if __name__ == '__main__':
     n_actions = args.n_learner
     action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
-    model = DDPG("MlpPolicy", train_env, action_noise=action_noise, verbose=1)
-    model.learn(total_timesteps=500, progress_bar=True)
+    model = DDPG("MlpPolicy", 
+                train_env,
+                action_noise=action_noise,
+                verbose=1,
+                buffer_size=10000)
+    model.learn(total_timesteps=train_env.n_steps, progress_bar=True)
 
     # RL validation
     print("Validating RL Agent...\n")
