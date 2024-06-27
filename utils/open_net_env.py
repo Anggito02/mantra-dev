@@ -1,6 +1,8 @@
 import gym
 from gym import spaces
 import numpy as np
+
+import math
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 class OpenNetEnv(gym.Env):
@@ -16,7 +18,8 @@ class OpenNetEnv(gym.Env):
         self.X = self.data[0]
         self.y = self.data[1]
         self.preds = self.data[2]
-        self.n_steps = len(self.X)
+        self.n_steps = len(self.y)
+        self.window_size = math.ceil(len(self.X)/len(self.y))
 
         # Define action and observation space
         # They must be gym.spaces objects
@@ -43,7 +46,7 @@ class OpenNetEnv(gym.Env):
 
     def reset(self):
         self.current_step = 0
-        obs = self.X[self.current_step]
+        obs = self.X[self.current_step * self.window_size:(self.current_step+1) * self.window_size]
         return obs
 
     def step(self, action):
@@ -65,9 +68,9 @@ class OpenNetEnv(gym.Env):
         done = self.current_step >= self.n_steps
         
         if done:
-            next_state = self.X[self.current_step - 1]
+            next_state = None
         else:
-            next_state = self.X[self.current_step]
+            next_state = self.X[self.current_step * self.window_size:(self.current_step + 1) * self.window_size]
 
         info = {
             'mse': mse,
