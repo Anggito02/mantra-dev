@@ -13,18 +13,17 @@ class OpenNetEnv(gym.Env):
         self.mode = mode
         self.current_step = 0
 
-        # data
+        # Load data
         self.data = self.__getdata__()
         self.X = self.data[0]
         self.y = self.data[1]
         self.preds = self.data[2]
         self.n_steps = len(self.y)
-        self.window_size = math.ceil(len(self.X)/len(self.y))
+        self.window_size = math.ceil(len(self.X) / self.n_steps)
 
         # Define action and observation space
-        # They must be gym.spaces objects
         self.action_space = spaces.Box(low=0, high=1, shape=(self.preds.shape[1],), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.X.shape[0],), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.window_size,), dtype=np.float32)
 
     def __getdata__(self):
         mode_X = np.load(f'{self.data_path}/dataset/input_{self.mode}_x.npy')
@@ -46,7 +45,7 @@ class OpenNetEnv(gym.Env):
 
     def reset(self):
         self.current_step = 0
-        obs = self.X[self.current_step * self.window_size:(self.current_step+1) * self.window_size]
+        obs = self._get_obs(self.current_step)
         return obs
 
     def step(self, action):
@@ -70,7 +69,7 @@ class OpenNetEnv(gym.Env):
         if done:
             next_state = None
         else:
-            next_state = self.X[self.current_step * self.window_size:(self.current_step + 1) * self.window_size]
+            next_state = self._get_obs(self.current_step)
 
         info = {
             'mse': mse,
@@ -78,6 +77,15 @@ class OpenNetEnv(gym.Env):
         }
 
         return next_state, reward, done, info
+
+    def _get_obs(self, step):
+        start = step * self.window_size
+        end = start + self.window_size
+        obs = self.X[start:end]
+        # Ensure the observation has the correct shape by padding if necessary
+        if len(obs) < self.window_size:
+            obs = np.pad(obs, (0, self.window_size - len(obs)), 'constant')
+        return obs
 
     def render(self, mode='human'):
         pass
