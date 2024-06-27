@@ -1168,3 +1168,21 @@ mse:0.4442168176174164, mae:0.4601607918739319
 ETTh1_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm256_el3_dl1_noslow_0  
 mse:0.4453643262386322, mae:0.4593680202960968
 
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_normal_0  
+mse:0.9697713255882263, mae:0.7384293079376221
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_normal_0  
+mse:0.8764188289642334, mae:0.7110128998756409
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_noslow_0  
+mse:0.8537965416908264, mae:0.702178955078125
+
+Exchange_96_336_B6iFast_custom_ftM_sl96_ll48_pl336_dm512_el3_dl1_noslo_1  
+mse:0.3425913453102112, mae:0.42311957478523254
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_noslow_0  
+mse:0.8537965416908264, mae:0.702178955078125
+
+Exchange_96_336_B6iFast_custom_ftM_sl96_ll48_pl336_dm512_el3_dl1_noslo_1  
+mse:0.3425913453102112, mae:0.42311957478523254
+
