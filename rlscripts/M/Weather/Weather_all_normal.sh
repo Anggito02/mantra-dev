@@ -5,14 +5,14 @@ python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/weather/ \
     --data_path weather.csv \
-    --model_id Weather_96_96 \
+    --model_id Weather_96_192 \
     --model B6iFast \
     --data custom \
     --features M \
     --seq_len 96 \
     --label_len 48 \
-    --pred_len 96 \
-    --e_layers 2 \
+    --pred_len 192 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
