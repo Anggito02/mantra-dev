@@ -23,7 +23,7 @@ python -u run_open_net.py \
     --urt_heads 1 \
     --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 1024 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
