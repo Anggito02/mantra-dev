@@ -17,7 +17,7 @@ python -u run_open_net.py \
     --enc_in 8 \
     --dec_in 8 \
     --c_out 8 \
-    --des 'normal_0' \
+    --des 'fast_1' \
     --n_learner 1 \
     --urt_heads 1 \
     --learning_rate 0.0001 \
@@ -47,7 +47,7 @@ python -u run_open_net.py \
     --enc_in 8 \
     --dec_in 8 \
     --c_out 8 \
-    --des 'normal_0' \
+    --des 'fast_2' \
     --n_learner 2 \
     --urt_heads 1 \
     --learning_rate 0.0001 \
@@ -77,7 +77,7 @@ python -u run_open_net.py \
     --enc_in 8 \
     --dec_in 8 \
     --c_out 8 \
-    --des 'normal_0' \
+    --des 'fast_4' \
     --n_learner 4 \
     --urt_heads 1 \
     --learning_rate 0.0001 \
