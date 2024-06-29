@@ -1189,3 +1189,12 @@ mse:0.3425913453102112, mae:0.42311957478523254
 Weather_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el2_dl1_normal_0  
 mse:0.17475305497646332, mae:0.2142973244190216
 
+urt_36_24_ILI_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_Exp  
+mse:2.409191608428955, mae:0.9785217642784119
+
+urt_36_24_ILI_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_Exp  
+mse:2.4182209968566895, mae:0.9799720644950867
+
+urt_96_96_Exchange_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_Exp  
+mse:0.10109508782625198, mae:0.22423002123832703
+
