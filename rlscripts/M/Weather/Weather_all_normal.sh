@@ -1,6 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0
 
-# 96/96
 python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/weather/ \
@@ -12,7 +11,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -21,9 +20,9 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -39,16 +38,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_96
@@ -64,7 +62,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -73,9 +71,9 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -91,16 +89,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_96
@@ -116,7 +113,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -125,9 +122,9 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -143,21 +140,19 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 96 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_96
 
-# 96/192
 python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/weather/ \
@@ -169,7 +164,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -178,9 +173,9 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -196,16 +191,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_192
@@ -221,7 +215,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -230,9 +224,9 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -248,16 +242,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_192
@@ -273,7 +266,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -282,9 +275,9 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -300,21 +293,19 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 192 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_192
 
-# 96/336
 python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/weather/ \
@@ -326,7 +317,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -335,9 +326,9 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -353,16 +344,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_336
@@ -378,7 +368,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -387,9 +377,9 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -405,16 +395,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_336
@@ -430,7 +419,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -439,9 +428,9 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -457,21 +446,19 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 336 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_336
 
-# 96/720
 python -u run_open_net.py \
     --is_training 1 \
     --root_path ./dataset/weather/ \
@@ -483,7 +470,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -492,9 +479,9 @@ python -u run_open_net.py \
     --des 'normal_0' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -510,16 +497,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_0' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_720
@@ -535,7 +521,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -544,9 +530,9 @@ python -u run_open_net.py \
     --des 'normal_1' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -562,16 +548,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_1' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_720
@@ -587,7 +572,7 @@ python -u run_open_net.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --factor 1 \
     --enc_in 21 \
@@ -596,9 +581,9 @@ python -u run_open_net.py \
     --des 'normal_2' \
     --n_learner 3 \
     --urt_heads 1 \
-    --learning_rate 0.001 \
+    --learning_rate 0.0001 \
     --d_model 512 \
-    --d_ff 2048 \
+    --d_ff 512 \
     --itr 1 \
     --fix_seed 2021 \
     --train_epochs 20 \
@@ -614,16 +599,15 @@ python -u run_rlmc.py \
     --seq_len 96 \
     --label_len 48 \
     --pred_len 720 \
-    --e_layers 2 \
+    --e_layers 3 \
     --d_layers 1 \
     --des 'normal_2' \
     --d_model 512 \
-    --seed 42 \
     --use_weight 0 \
     --use_td 1 \
     --use_extra 1 \
     --use_pretrain 1 \
-    --epsilon 1 \
+    --epsilon 0.9 \
     --gamma 0.99 \
     --tau 0.005 \
     --exp_name Weather_96_720

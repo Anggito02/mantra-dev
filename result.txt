@@ -1149,4 +1149,54 @@ mse:0.10301592946052551, mae:0.2321109175682068
 
 Exchange_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_normal_0  
 mse:0.09019893407821655, mae:0.20985500514507294
+ILI_36_24_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_normal_0  
+mse:2.264920711517334, mae:0.9595983624458313
+
+ILI_36_60_B6iFast_custom_ftM_sl36_ll18_pl60_dm512_el3_dl1_normal_0_new  
+mse:2.1846728324890137, mae:0.9611861109733582
+
+ILI_36_48_B6iFast_custom_ftM_sl36_ll18_pl48_dm512_el3_dl1_normal_0  
+mse:2.3554580211639404, mae:0.9990724921226501
+
+Exchange_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_normal_0_no_slow  
+mse:0.10174961388111115, mae:0.22822993993759155
+
+Exchange_96_336_B6iFast_custom_ftM_sl96_ll48_pl336_dm512_el3_dl1_normal_0  
+mse:0.3498309552669525, mae:0.4307421147823334
+
+ETTh1_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm256_el3_dl1_normal_0  
+mse:0.4442168176174164, mae:0.4601607918739319
+
+ETTh1_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm256_el3_dl1_noslow_0  
+mse:0.4453643262386322, mae:0.4593680202960968
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_normal_0  
+mse:0.9697713255882263, mae:0.7384293079376221
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_normal_0  
+mse:0.8764188289642334, mae:0.7110128998756409
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_noslow_0  
+mse:0.8537965416908264, mae:0.702178955078125
+
+Exchange_96_336_B6iFast_custom_ftM_sl96_ll48_pl336_dm512_el3_dl1_noslo_1  
+mse:0.3425913453102112, mae:0.42311957478523254
+
+Exchange_96_720_B6iFast_custom_ftM_sl96_ll48_pl720_dm512_el3_dl1_noslow_0  
+mse:0.8537965416908264, mae:0.702178955078125
+
+Exchange_96_336_B6iFast_custom_ftM_sl96_ll48_pl336_dm512_el3_dl1_noslo_1  
+mse:0.3425913453102112, mae:0.42311957478523254
+
+Weather_96_96_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el2_dl1_normal_0  
+mse:0.17475305497646332, mae:0.2142973244190216
+
+urt_36_24_ILI_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_Exp  
+mse:2.409191608428955, mae:0.9785217642784119
+
+urt_36_24_ILI_B6iFast_custom_ftM_sl36_ll18_pl24_dm512_el3_dl1_Exp  
+mse:2.4182209968566895, mae:0.9799720644950867
+
+urt_96_96_Exchange_B6iFast_custom_ftM_sl96_ll48_pl96_dm512_el3_dl1_Exp  
+mse:0.10109508782625198, mae:0.22423002123832703
 
